@@ -1,0 +1,12 @@
+{
+  "name": "dixittest",
+  "version": "1.0.0",
+  "description": "implementation of boardgame dixit for browser.",
+  "main": "index.js",
+  "repository": "https://github.com/maddinpsy/dixittest.git",
+  "author": "Martin Hoffmann <maddinpsycho@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "http": "^0.0.1-security"
+  }
+}
