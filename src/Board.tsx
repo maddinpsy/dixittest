@@ -1,22 +1,13 @@
-import { count } from "console";
 import * as React from "react";
-
+import imageLoader from './images';
 import backside from './img/backside.png';
-import card1 from './img/DIXIT_1_WALLPAPER_SMARTPHONE_1.jpg';
-import card2 from './img/DIXIT_1_WALLPAPER_SMARTPHONE_2.jpg';
-import card3 from './img/DIXIT_1_WALLPAPER_SMARTPHONE_3.jpg';
-import card4 from './img/DIXIT_2_WALLPAPER_SMARTPHONE_1.jpg';
-import card5 from './img/DIXIT_2_WALLPAPER_SMARTPHONE_2.jpg';
-import card6 from './img/DIXIT_2_WALLPAPER_SMARTPHONE_3.jpg';
 
+  
 function Opponent(props:{name:string,cards:number})
 { 
-    const images = Array.from(Array(props.cards).keys()).map(idx=>(
-        <img src={backside} alt="backside" key={idx} style={{transform: 'rotate('+((idx-props.cards/2)*-5)+'deg)'}}/>
-    ))
     return (
         <div className="opponent">
-            {images}
+            <CardPile cards={Array<string>(props.cards).fill(backside)} size="100px"/>
             <h1>{props.name}</h1>
         </div>
     )
@@ -34,19 +25,32 @@ function OpponentList(props:{opponents:{name:string,cards:number}[]})
     )
 }
 
-function PublicCards(props:{count:number})
+function Cards(props:{cards:string[]})
 {
-    function remove(id:number){
-        let el=document.querySelector("#public"+id);
-        el?.classList.add("hidden");
-    }
-
-    const images = Array.from(Array(10).keys()).map(idx=>(
-        <img src={backside} alt="backside" key={idx} id={"public"+idx} onClick={()=>remove(idx)}/>
+    const list=props.cards.map((value,idx)=>(
+        <div key={idx}>
+            <img src={value} alt={value}/>
+        </div>
     ))
     return (
-        <div className="publicCards">
-            {images}
+        <div className="cards">
+        {list}
+        </div>
+    )
+}
+
+function CardPile(props:{cards:string[], size:string})
+{
+    const list=props.cards.map((value,idx)=>(
+        <img src={value} alt={value} key={idx} style={
+            {transform: 'rotate('+((idx-props.cards.length/2)*-5)+'deg)',
+             height: props.size
+            }
+        }/>
+    ))
+    return (
+        <div className="cardpile">
+        {list}
         </div>
     )
 }
@@ -62,42 +66,38 @@ function Command(props:any)
     )
 }
 
-function OwnCards(props:{cards:string[]})
+function CardsToChoose(props:{cards:string[], handler:(idx:number)=>void})
 {
-    function remove(id:number){
-        let el=document.querySelector("#owncard"+id);
-        el?.classList.add("hidden");
-    }
-
     const list=props.cards.map((value,idx)=>(
-        <div key={idx} id={"owncard"+idx}>
-            <img src={value}/>
+        <div key={idx}>
+            <img src={value} alt={value}/>
             <br/>
-            <button onClick={()=>remove(idx)}>Choose this</button> 
+            <button onClick={()=>props.handler(idx)}>Choose this</button> 
         </div>
     ))
     return (
-        <div className="handcards">
+        <div className="cards">
         {list}
         </div>
     )
 }
 
 export function DixitBoard(){
+    const images = imageLoader()
     const opponents = [
         {name:"Mark",cards:6},
         {name:"Lisa",cards:6},
         {name:"Benny",cards:6}
     ]
-
-    const handcards = [card1,card2,card3,card4,card5,card6]
+    const handcards = images.slice(0,4);
+    console.log(images[0]);
 
     return (
         <div className="board">
             <OpponentList opponents={opponents}/>
-            <PublicCards count={5}/>
+            <CardPile cards={[backside,backside,backside,backside]} size="200px" />
             <Command/>
-            <OwnCards cards={handcards}/>
+            <CardsToChoose cards={handcards} handler={(idx:number)=>{}}/>
         </div>
     )
 }
