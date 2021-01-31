@@ -1,14 +1,13 @@
 
-import { Ctx, PlayerID } from 'boardgame.io';
+import { Ctx, Game, PlayerID } from 'boardgame.io';
 import { INVALID_MOVE, PlayerView } from 'boardgame.io/core';
-import { nextTick } from 'process';
+
 
 export interface DixitGameState {
     secret:
     {
         drawPile: string[],
-        storyCard: string
-        allCards: {
+        playedCards: {
             str: string,
             playedBy: PlayerID,
             votedBy: PlayerID[]
@@ -18,32 +17,45 @@ export interface DixitGameState {
     {
         [key: string]: { hand: string[] }
     }
-    phrase: string;
+    phrase?: string;
+    playedCards: {
+        [str: string]: {
+            playedBy?: PlayerID,
+            votedBy?: PlayerID[]
+        }
+    }
 }
 
-function setupGame(G: DixitGameState, ctx: Ctx) {
-    ctx.events?.setPhase??('Main');
-}
-
-
-function setupTurn(G: DixitGameState, ctx: Ctx) {
-    //start with sotory telling
-    ctx.events?.setActivePlayers ?? ({
-        currentPlayer: { stage: 'SelectStory', moveLimit: 1 },
-        others: { stage: 'Waiting', moveLimit: 1 }
-    });
-
-    //draw six cards each
-    for(let playerID in G.players)
-    {
-        while(G.players[playerID].hand.length < 6)
+export function setupGame(ctx: Ctx) {
+    let G:DixitGameState = {
+        secret:
         {
+            drawPile: ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6"],
+            playedCards: []
+        },
+        players: {},
+        playedCards: {}
+    }
+    //shuffle deck
+    G.secret.drawPile = ctx.random?.Shuffle(G.secret.drawPile) || [];
+    //add number of players
+    for(let i = 0; i<ctx.numPlayers;i++){
+        G.players[String(i)] = { hand: [] };
+    }
+    return G;
+}
+
+
+export function setupTurn(G: DixitGameState, ctx: Ctx) {
+    //draw six cards each
+    for (let playerID in G.players) {
+        while (G.players[playerID].hand.length < 6) {
             //get card
             let card = G.secret.drawPile.pop();
-            
+
             //was last, end the game
-            if(!card){
-                ctx.events?.endGame??({});
+            if (!card) {
+                if(ctx.events?.endGame) ctx.events.endGame();
                 return;
             }
 
@@ -51,15 +63,15 @@ function setupTurn(G: DixitGameState, ctx: Ctx) {
             G.players[playerID].hand.push(card);
         }
     }
-    
+
 }
 
-function endPhase(G: DixitGameState, ctx: Ctx) {
+export function endPhase(G: DixitGameState, ctx: Ctx) {
     return false;
 }
 
 //all moves
-function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: string) {
+export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: string) {
     //if no player is give, it is an invalid move
     if (ctx.playerID == undefined) {
         return INVALID_MOVE;
@@ -76,9 +88,8 @@ function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: string)
     }
 
     //save as choosen card and phrase
-    G.secret.storyCard = image;
     G.phrase = phrase;
-    G.secret.allCards.push({
+    G.secret.playedCards.push({
         str: image,
         playedBy: ctx.playerID,
         votedBy: []
@@ -88,13 +99,13 @@ function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: string)
     plystate.hand.splice(idx, 1);
 
     //move to next stage
-    ctx.events?.setActivePlayers ?? ({
+    if(ctx.events?.setActivePlayers) ctx.events.setActivePlayers ({
         currentPlayer: { stage: 'Waiting', moveLimit: 1 },
         others: { stage: 'AddOwnCard', moveLimit: 1 }
     });
 }
 
-function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
+export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if no player is give, it is an invalid move
     if (!ctx.playerID) {
         return INVALID_MOVE;
@@ -111,7 +122,7 @@ function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
     }
 
     //save card
-    G.secret.allCards.push({
+    G.secret.playedCards.push({
         str: image,
         playedBy: ctx.playerID,
         votedBy: []
@@ -128,14 +139,14 @@ function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
         }
     }
     if (allInWatingButMe) {
-        ctx.events?.setActivePlayers ?? ({
+        if(ctx.events?.setActivePlayers) ctx.events.setActivePlayers ({
             currentPlayer: { stage: 'Waiting', moveLimit: 1 },
-            others: { stage: 'VotingStory', moveLimit: 1 }
+            others: { stage: 'VoteStory', moveLimit: 1 }
         });
     }
 }
 
-function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
+export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if no player is give, it is an invalid move
     if (!ctx.playerID) {
         return INVALID_MOVE;
@@ -145,13 +156,13 @@ function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
         return INVALID_MOVE;
     }
     //if not on voting, it is an invalid move
-    const idx: number = G.secret.allCards.map(c=>c.str).indexOf(image);
+    const idx: number = G.secret.playedCards.map(c => c.str).indexOf(image);
     if (idx == -1) {
         return INVALID_MOVE;
     }
 
     //save voting
-    G.secret.allCards[idx].votedBy.push(ctx.playerID);
+    G.secret.playedCards[idx].votedBy.push(ctx.playerID);
 
     //if last, move to next state
     let allInWatingButMe: boolean = true;
@@ -161,50 +172,58 @@ function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
         }
     }
     if (allInWatingButMe) {
-        ctx.events?.setActivePlayers ?? ({
+        if(ctx.events?.setActivePlayers) ctx.events.setActivePlayers ({
             currentPlayer: { stage: 'Finish', moveLimit: 1 },
             others: { stage: 'Waiting', moveLimit: 1 }
         });
     }
 }
 
-function EndTurn(G: DixitGameState, ctx: Ctx) {
-    ctx.events?.endTurn??({});
+export function EndTurn(G: DixitGameState, ctx: Ctx) {
+    if(ctx.events?.endTurn) ctx.events.endTurn();
 }
 
 const PhaseSetup = {
 }
 
-const PhaseMain = {
+const PhaseMain: Game<DixitGameState, Ctx> = {
+    playerView: PlayerView.STRIP_SECRETS,
     setup: setupGame,
     phases: {
         Main: {
+            start: true,
             turn: {
-                moveLimit: 1,
+                 //start with sotory telling
+                activePlayers:    
+                {
+                    currentPlayer: { stage: 'Storytelling', moveLimit: 1 },
+                    others: { stage: 'Waiting', moveLimit: 1 }
+                },
                 onBegin: setupTurn,
                 stages: {
                     Waiting:
                     {
-                        moves: {}
+                        moves: {},
+                        next: 'Waiting'
                     },
                     Storytelling:
                     {
-                        moves: { SelectStory },
+                        moves: { SelectStory : {move:SelectStory,client:false} },
                         next: 'Waiting'
                     },
                     AddOwnCard:
                     {
-                        moves: { SelectCard },
+                        moves: { SelectCard :{move:SelectCard,client:false} },
                         next: 'Waiting'
                     },
-                    VotingStory:
+                    VoteStory:
                     {
-                        moves: { VoteCard },
+                        moves: { VoteCard:{move:VoteCard,client:false} },
                         next: 'Waiting'
                     },
                     Finish:
                     {
-                        moves: { EndTurn },
+                        moves: { EndTurn:{move:EndTurn,client:false} },
                         next: 'Waiting'
                     }
                 }
@@ -215,4 +234,4 @@ const PhaseMain = {
     },
 };
 
-export const Dixit = { ...PhaseSetup, ...PhaseMain }; 
+export const Dixit: Game<DixitGameState, Ctx> = { ...PhaseSetup, ...PhaseMain }; 
