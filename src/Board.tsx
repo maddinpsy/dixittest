@@ -7,7 +7,7 @@ import { DixitGameState } from "./Game";
 function Opponent(props: { name: string, cards: number }) {
     return (
         <div className="opponent">
-            <CardPile cards={Array<string>(props.cards).fill(backside)} size="100px" />
+            <CardPile cards={Array<string>(props.cards).fill(backside)}  />
             <h1>{props.name}</h1>
         </div>
     )
@@ -37,12 +37,12 @@ function Cards(props: { cards: string[] }) {
     )
 }
 
-function CardPile(props: { cards: string[], size: string }) {
+function CardPile(props: { cards: string[] }) {
     const list = props.cards.map((value, idx) => (
         <img src={value} alt={value} key={idx} style={
             {
                 transform: 'rotate(' + ((idx - props.cards.length / 2) * -5) + 'deg)',
-                height: props.size
+                
             }
         } />
     ))
@@ -88,10 +88,11 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
         
         const playerID = this.props.playerID || '';
         console.log(playerID);
+        //
         return (
             <div className="board">
                 <OpponentList opponents={opponents} />
-                <CardPile cards={[backside, backside, backside, backside]} size="200px" />
+                <CardPile cards={[backside, backside, backside, backside]}  />
                 <Command />
                 <CardsToChoose cards={this.props.G.players[playerID].hand} handler={(idx: number) => { }} />
             </div>
