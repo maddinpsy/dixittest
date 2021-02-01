@@ -67,6 +67,9 @@ export function setupTurn(G: DixitGameState, ctx: Ctx) {
     G.phrase = '';
     G.playedCards = [];
     G.secret.playedCards = [];
+    for(let pId in G.players){
+        G.players[pId].playedCards = undefined;
+    }
     //draw six cards each
     for (let playerID in G.players) {
         while (G.players[playerID].hand.length < 6) {

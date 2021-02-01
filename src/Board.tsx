@@ -135,7 +135,7 @@ class CardsFullInfo extends React.Component<{playedCards:PlayedCard[], playerInf
     }
     voters(votedBy:string[]){
         if(votedBy.length===0){
-            return ;
+            return (<div>not voted</div>);
         }
         const list = votedBy.map((value, idx) => (
             <span key={idx}>
@@ -177,7 +177,7 @@ class StageWaiting extends React.Component<StageProps> {
 
     render() {
         return (
-            <div className="board">
+            <div className="board waiting">
                 <OpponentList opponents={this.props.others} />
                 {this.playedCards()}
                 <WatingCommand />
@@ -219,7 +219,7 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
 
     render() {
         return (
-            <div className="board">
+            <div className="board storytelling">
                 <OpponentList opponents={this.props.others} />
                 <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
                 <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
@@ -246,7 +246,7 @@ class StageAddOwnCard extends React.Component<StageProps>
 
     render() {
         return (
-            <div className="board">
+            <div className="board addowncard">
                 <OpponentList opponents={this.props.others} />
                 <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
                 <ChoseCommand phrase={this.props.public.phrase} />
@@ -273,7 +273,7 @@ class StageVoteStory extends React.Component<StageProps>
     render() {
         
         return (
-            <div className="board">
+            <div className="board votestory">
                 <OpponentList opponents={this.props.others} />
                 <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />
                 <CardsToChoose cards={this.props.public.playedCards.map(x=>x.str)} handler={this.cardSelected} />
@@ -291,14 +291,13 @@ class StageFinish extends React.Component<StageProps>
  
     render() {
         return (
-            <div className="board">
+            <div className="board finish">
                 <OpponentList opponents={this.props.others} />
                 <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.public.playerInfo} />
-               
+                <Cards cards={this.props.myhand} />
             </div>
         )
     }
-    //<Cards cards={this.props.myhand} />
 }
 
 export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any> {

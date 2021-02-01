@@ -11,9 +11,24 @@ body{
 .board {
   background-color: #725c4d;
   display: grid;
-  grid-template-rows: 0.2fr 1fr auto 2fr;
   height: 100vh;
   justify-items: center;
+  row-gap: 5%;
+}
+.storytelling{
+  grid-template-rows: 0.2fr 1fr auto 2fr;
+}
+.addowncard{
+  grid-template-rows: 0.2fr 1fr auto 2fr;
+}
+.votestory{
+  grid-template-rows: 0.2fr 1fr auto 2fr;
+}
+.finish{
+  grid-template-rows: 0.2fr 2fr 1fr;
+}
+.waiting{
+  grid-template-rows: 0.2fr 2fr auto 1fr;
 }
 
 .cards {
