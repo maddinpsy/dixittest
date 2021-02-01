@@ -126,15 +126,15 @@ function CardsToChoose(props: { cards: string[], handler: (src: string) => void 
 }
 
 
-class CardsFullInfo extends React.Component<{G:DixitGameState}> {
+class CardsFullInfo extends React.Component<{playedCards:PlayedCard[], playerInfo:{[key: string]: { name: string, cardCount: number }}}> {
     mapToName(playerID?:string):string{
-        if(playerID===undefined || this.props.G.playerInfo[playerID] == undefined){
+        if(playerID===undefined || this.props.playerInfo[playerID] == undefined){
             return "...";
         }
-        return this.props.G.playerInfo[playerID].name;
+        return this.props.playerInfo[playerID].name;
     }
-    voters(votedBy?:string[]){
-        if(votedBy=== undefined || votedBy.length===0){
+    voters(votedBy:string[]){
+        if(votedBy.length===0){
             return ;
         }
         const list = votedBy.map((value, idx) => (
@@ -146,7 +146,7 @@ class CardsFullInfo extends React.Component<{G:DixitGameState}> {
         return (<div>Voted by: {list}</div>);
     } 
     render() {
-        const list = this.props.G.playedCards.map((value, idx) => (
+        const list = this.props.playedCards.map((value, idx) => (
             <div key={idx} className="container">
                 <div>Played by: {this.mapToName(value.playedBy)}</div>
                 <img src={value.str} alt={value.str} />
@@ -162,11 +162,24 @@ class CardsFullInfo extends React.Component<{G:DixitGameState}> {
 }
 
 class StageWaiting extends React.Component<StageProps> {
+    playedCards(){
+        const playerIDs = Object.keys(this.props.public.players);
+        if(playerIDs.length>0){
+            const playedCards = this.props.public.players[playerIDs[0]].playedCards;
+            if(playedCards!==undefined){
+                //info about played cards is available
+                return(<CardsFullInfo playedCards={playedCards} playerInfo={this.props.public.playerInfo} />)
+            }
+        }
+        //show backsides only
+        return(<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />)
+    }
+
     render() {
         return (
             <div className="board">
                 <OpponentList opponents={this.props.others} />
-                <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
+                {this.playedCards()}
                 <WatingCommand />
                 <Cards cards={this.props.myhand} />
             </div>
@@ -280,7 +293,7 @@ class StageFinish extends React.Component<StageProps>
         return (
             <div className="board">
                 <OpponentList opponents={this.props.others} />
-                <CardsFullInfo G={this.props.public} />
+                <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.public.playerInfo} />
                
             </div>
         )
@@ -305,7 +318,6 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
         const storyteller = this.props.G.playerInfo[this.props.ctx.currentPlayer].name;
         switch (this.props.ctx.activePlayers[playerID]) {
             case undefined:
-            case 'Waiting':
                 return (<StageWaiting myhand={ownCards} others={others} storyTellerName={storyteller} public={this.props.G} />);
             case 'Storytelling':
                 return (<StageStorytelling myhand={ownCards} others={others}  storyTellerName={storyteller} public={this.props.G} onChooseStory={this.props.moves.SelectStory} />);

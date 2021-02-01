@@ -6,22 +6,21 @@ import imageLoader from './images';
 export interface PlayedCard {
     str: string,
     playedBy?: PlayerID,
-    votedBy?: PlayerID[]
+    votedBy: PlayerID[]
 }
 
 export interface DixitGameState {
     secret:
     {
         drawPile: string[],
-        playedCards: {
-            str: string,
-            playedBy: PlayerID,
-            votedBy: PlayerID[]
-        }[]
+        playedCards: PlayedCard[]
     },
     players:
     {
-        [key: string]: { hand: string[] }
+        [key: string]: { 
+            hand: string[] 
+            playedCards?: PlayedCard[]
+        }
     }
     playerInfo:
     {
@@ -54,9 +53,13 @@ export function setupGame(ctx: Ctx) {
 }
 
 function updatePublicKnowledge(G: DixitGameState, ctx: Ctx) {
+    //player card count
     for (let playerID in G.players) {
         G.playerInfo[playerID].cardCount = G.players[playerID].hand.length;
     }
+
+    //everything to curret player
+    G.players[ctx.currentPlayer].playedCards=G.secret.playedCards;
 }
 
 export function setupTurn(G: DixitGameState, ctx: Ctx) {
@@ -117,7 +120,6 @@ export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: 
 
     //move to next stage
     if (ctx.events?.setActivePlayers) ctx.events.setActivePlayers({
-        currentPlayer: { stage: 'Waiting', moveLimit: 1 },
         others: { stage: 'AddOwnCard', moveLimit: 1 }
     });
 }
@@ -151,7 +153,7 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if last, move to next state
     let allInWatingButMe: boolean = true;
     for (let playerID in ctx.activePlayers) {
-        if (ctx.activePlayers[playerID] !== 'Waiting' && playerID !== ctx.playerID) {
+        if (playerID !== ctx.playerID) {
             allInWatingButMe = false;
         }
     }
@@ -159,14 +161,14 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
         //shuffle and show cards                
         if (ctx.random?.Shuffle)
             G.secret.playedCards = ctx.random.Shuffle(G.secret.playedCards);
-
+        if(!G.playedCards)
+        G.playedCards=[];
         for (let i = 0; i < G.secret.playedCards.length; i++) {
-            G.playedCards.push({ str: G.secret.playedCards[i].str });
+            G.playedCards.push({ str: G.secret.playedCards[i].str, votedBy:[]});
         }
 
         //goto next stage
         if (ctx.events?.setActivePlayers) ctx.events.setActivePlayers({
-            currentPlayer: { stage: 'Waiting', moveLimit: 1 },
             others: { stage: 'VoteStory', moveLimit: 1 }
         });
     }
@@ -193,7 +195,7 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if last, move to next state
     let allInWatingButMe: boolean = true;
     for (let playerID in ctx.activePlayers) {
-        if (ctx.activePlayers[playerID] !== 'Waiting' && playerID !== ctx.playerID) {
+        if (playerID !== ctx.playerID) {
             allInWatingButMe = false;
         }
     }
@@ -206,7 +208,6 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
         //move to next stage
         if (ctx.events?.setActivePlayers) ctx.events.setActivePlayers({
             currentPlayer: { stage: 'Finish', moveLimit: 1 },
-            others: { stage: 'Waiting', moveLimit: 1 }
         });
     }
 }
@@ -229,35 +230,25 @@ const PhaseMain: Game<DixitGameState, Ctx> = {
                 activePlayers:
                 {
                     currentPlayer: { stage: 'Storytelling', moveLimit: 1 },
-                    others: { stage: 'Waiting', moveLimit: 1 }
                 },
                 onBegin: setupTurn,
                 onMove: updatePublicKnowledge,
                 stages: {
-                    Waiting:
-                    {
-                        moves: {},
-                        next: 'Waiting'
-                    },
                     Storytelling:
                     {
                         moves: { SelectStory: { move: SelectStory, client: false } },
-                        next: 'Waiting'
                     },
                     AddOwnCard:
                     {
                         moves: { SelectCard: { move: SelectCard, client: false } },
-                        next: 'Waiting'
                     },
                     VoteStory:
                     {
                         moves: { VoteCard: { move: VoteCard, client: false } },
-                        next: 'Waiting'
                     },
                     Finish:
                     {
                         moves: { EndTurn: { move: EndTurn, client: false } },
-                        next: 'Waiting'
                     }
                 }
             },
