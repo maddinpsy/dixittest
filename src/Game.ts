@@ -17,6 +17,11 @@ export interface DixitGameState {
     {
         [key: string]: { hand: string[] }
     }
+    playerInfo:
+    {
+        [key: string]: { name:string, cardCount:number}
+    }
+    playedCardCount: number;
     phrase?: string;
     playedCards: {
             str: string,
@@ -29,22 +34,30 @@ export function setupGame(ctx: Ctx) {
     let G:DixitGameState = {
         secret:
         {
-            //drawPile: ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6"],
             drawPile: imageLoader(),
             playedCards: []
         },
         players: {},
-        playedCards: []
+        playedCards: [],
+        playerInfo:{},
+        playedCardCount:0
     }
     //shuffle deck
     G.secret.drawPile = ctx.random?.Shuffle(G.secret.drawPile) || [];
     //add number of players
     for(let i = 0; i<ctx.numPlayers;i++){
         G.players[String(i)] = { hand: [] };
+        G.playerInfo[String(i)] = {cardCount:0,name:''};
     }
     return G;
 }
 
+function updatePublicKnowledge(G:DixitGameState,ctx:Ctx){
+    G.playedCardCount = G.secret.playedCards.length;
+    for(let playerID in G.players){
+        G.playerInfo[playerID].cardCount=G.players[playerID].hand.length;
+    }
+}
 
 export function setupTurn(G: DixitGameState, ctx: Ctx) {
     //draw six cards each
@@ -63,7 +76,7 @@ export function setupTurn(G: DixitGameState, ctx: Ctx) {
             G.players[playerID].hand.push(card);
         }
     }
-
+    updatePublicKnowledge(G,ctx);
 }
 
 export function endPhase(G: DixitGameState, ctx: Ctx) {
@@ -208,13 +221,14 @@ const PhaseMain: Game<DixitGameState, Ctx> = {
         Main: {
             start: true,
             turn: {
-                 //start with sotory telling
+                 //start with story telling
                 activePlayers:    
                 {
                     currentPlayer: { stage: 'Storytelling', moveLimit: 1 },
                     others: { stage: 'Waiting', moveLimit: 1 }
                 },
                 onBegin: setupTurn,
+                onMove:updatePublicKnowledge,
                 stages: {
                     Waiting:
                     {

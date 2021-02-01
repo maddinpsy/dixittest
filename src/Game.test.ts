@@ -1,3 +1,5 @@
+jest.mock('./images')
+
 import { Dixit } from './Game';
 import { Local } from 'boardgame.io/multiplayer';
 import { Client } from 'boardgame.io/client';

@@ -1,5 +1,5 @@
 import * as React from "react";
-import backside from './img/backside.png';
+import backside from './backside.png';
 
 import { BoardProps } from "boardgame.io/react";
 import { DixitGameState } from "./Game";
@@ -13,9 +13,9 @@ function Opponent(props: { name: string, cards: number }) {
     )
 }
 
-function OpponentList(props: { opponents: { name: string, cards: number }[] }) {
+function OpponentList(props: { opponents: { name: string, cardCount: number }[] }) {
     const listOp = props.opponents.map((op, idx) => (
-        <Opponent name={op.name} cards={op.cards} key={idx} />
+        <Opponent name={op.name} cards={op.cardCount} key={idx} />
     ));
     return (
         <div className="opponentList">
@@ -59,8 +59,10 @@ class StoryTellingCommand extends React.Component<{ phrase: string , onChange:(p
     };
     render() {
         return (
-            <div>
+            <div className="command">
+                <div>Choose a pharse:</div>
                 <input type="text" value={this.props.phrase} onChange={this.onChange} />
+                <div>And select a card:</div>
             </div>
         );
     }
@@ -128,8 +130,8 @@ class StageWaiting extends React.Component<{ G: DixitGameState, playerID: string
     render() {
         return (
             <div className="board">
-                <OpponentList opponents={[]} />
-                <CardPile cards={[backside, backside, backside, backside]} />
+                <OpponentList opponents={Object.keys(this.props.G.playerInfo).filter(x=>(x!=this.props.playerID)).map(x=>this.props.G.playerInfo[x])} />
+                <CardPile cards={Array(this.props.G.playedCardCount).fill(backside)} />
                 <WatingCommand />
                 <Cards cards={this.props.G.players[this.props.playerID].hand} />
             </div>
@@ -159,8 +161,8 @@ class StageStorytelling extends React.Component<{ G: DixitGameState, playerID: s
     render() {
         return (
             <div className="board">
-                <OpponentList opponents={[]} />
-                <CardPile cards={[backside, backside, backside, backside]} />
+                <OpponentList opponents={Object.keys(this.props.G.playerInfo).filter(x=>(x!=this.props.playerID)).map(x=>this.props.G.playerInfo[x])} />
+                <CardPile cards={Array(this.props.G.playedCardCount).fill(backside)} />
                 <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase}/>
                 <CardsToChoose cards={this.props.G.players[this.props.playerID].hand} handler={this.cardSelected} />
             </div>
