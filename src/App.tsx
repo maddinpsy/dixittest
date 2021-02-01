@@ -10,9 +10,10 @@ function App() {
     game: Dixit,
     board: DixitBoard,
     multiplayer: Local(),
+    debug:false
   });
   return (
-    <DixitClient playerID="0" />
+    <DixitClient playerID="0"/>
   );
 }
 

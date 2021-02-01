@@ -1,5 +1,4 @@
 import * as React from "react";
-import imageLoader from './images';
 import backside from './img/backside.png';
 
 import { BoardProps } from "boardgame.io/react";
@@ -80,16 +79,14 @@ function CardsToChoose(props: { cards: string[], handler: (idx: number) => void 
 }
 
 export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any> {
-    render() {
-        const images = imageLoader()
-        
+    render() {        
         const opponents = [
             { name: "Mark", cards: 6 },
             { name: "Lisa", cards: 6 },
             { name: "Hugo", cards: 6 }
         ]
         
-        const playerID = this.props.ctx.playerID || '';
+        const playerID = this.props.playerID || '';
         console.log(playerID);
         return (
             <div className="board">

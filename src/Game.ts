@@ -1,7 +1,7 @@
 
 import { Ctx, Game, PlayerID } from 'boardgame.io';
 import { INVALID_MOVE, PlayerView } from 'boardgame.io/core';
-
+import imageLoader from './images';
 
 export interface DixitGameState {
     secret:
@@ -29,7 +29,8 @@ export function setupGame(ctx: Ctx) {
     let G:DixitGameState = {
         secret:
         {
-            drawPile: ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6"],
+            //drawPile: ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6"],
+            drawPile: imageLoader(),
             playedCards: []
         },
         players: {},
