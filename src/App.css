@@ -23,6 +23,9 @@ body{
 
 .cardpile {
   height:100px;
+  align-self: center;
+  text-align: center;
+  width: 100%;
 }
 .cardpile img
 {

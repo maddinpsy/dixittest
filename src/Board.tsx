@@ -126,21 +126,25 @@ function CardsToChoose(props: { cards: string[], handler: (src: string) => void 
     )
 }
 
-class StageWaiting extends React.Component<{ G: DixitGameState, playerID: string }> {
+class StageWaiting extends React.Component<{ myhand:string[], others:{name:string,cardCount:number}[], public:{playedCardCount:number} }> {
     render() {
         return (
             <div className="board">
-                <OpponentList opponents={Object.keys(this.props.G.playerInfo).filter(x=>(x!=this.props.playerID)).map(x=>this.props.G.playerInfo[x])} />
-                <CardPile cards={Array(this.props.G.playedCardCount).fill(backside)} />
+                <OpponentList opponents={this.props.others} />
+                <CardPile cards={Array(this.props.public.playedCardCount).fill(backside)} />
                 <WatingCommand />
-                <Cards cards={this.props.G.players[this.props.playerID].hand} />
+                <Cards cards={this.props.myhand} />
             </div>
         )
     }
 }
 
 
-class StageStorytelling extends React.Component<{ G: DixitGameState, playerID: string, onChoose: (phrase: string, image: string) => void },{phrase:string, image:string}> {
+class StageStorytelling extends React.Component<{ myhand:string[], 
+                                                  others:{name:string,cardCount:number}[], 
+                                                  public:{playedCardCount:number} , 
+                                                  onChoose: (phrase: string, image: string) => void },{phrase:string, image:string}> 
+                                                  {
     constructor(props: any) {
         super(props);
         this.state = { phrase: '', image: '' };
@@ -161,10 +165,10 @@ class StageStorytelling extends React.Component<{ G: DixitGameState, playerID: s
     render() {
         return (
             <div className="board">
-                <OpponentList opponents={Object.keys(this.props.G.playerInfo).filter(x=>(x!=this.props.playerID)).map(x=>this.props.G.playerInfo[x])} />
-                <CardPile cards={Array(this.props.G.playedCardCount).fill(backside)} />
+                <OpponentList opponents={this.props.others} />
+                <CardPile cards={Array(this.props.public.playedCardCount).fill(backside)} />
                 <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase}/>
-                <CardsToChoose cards={this.props.G.players[this.props.playerID].hand} handler={this.cardSelected} />
+                <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
             </div>
         )
     }
@@ -190,18 +194,26 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
             { name: "Hugo", cards: 6 }
         ]
 
-        const playerID = this.props.playerID || '';
-        console.log(playerID);
+        const playerID = this.props.playerID;
+        if (!playerID) {
+            return (<div>Error, playerID not defined</div>)
+        }
+        if (!this.props.G.players[playerID]) {
+            return (<div>Error, hand not defined</div>)
+        }
         if (!this.props.ctx.activePlayers) {
             return (<div>Error, this.props.ctx.activePlayers not defined</div>)
         }
+        const ownCards = this.props.G.players[playerID].hand;
+        const others = Object.keys(this.props.G.playerInfo).filter(x=>(x!==this.props.playerID)).map(x=>this.props.G.playerInfo[x]);
+        const known = {playedCardCount: this.props.G.playedCardCount} 
 
         switch (this.props.ctx.activePlayers[playerID]) {
             case undefined:
             case 'Waiting':
-                return (<StageWaiting G={this.props.G} playerID={playerID} />);
+                return (<StageWaiting myhand={ownCards} others={others} public={known}/>);
             case 'Storytelling':
-                return (<StageStorytelling G={this.props.G} playerID={playerID} onChoose={this.props.moves.SelectStory} />);
+                return (<StageStorytelling  myhand={ownCards} others={others} public={known} onChoose={this.props.moves.SelectStory} />);
             case 'AddOwnCard':
                 return (<StageAddOwnCard />);
             case 'VoteStory':
