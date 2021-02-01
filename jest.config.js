@@ -6,4 +6,8 @@ module.exports = {
   "transform": {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
+  watchPathIgnorePatterns:[
+    ".*/node_modules/.*",
+    "<rootDir>/src/img/"
+  ]
 }

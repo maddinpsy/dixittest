@@ -2,21 +2,21 @@ import * as React from "react";
 import imageLoader from './images';
 import backside from './img/backside.png';
 
-  
-function Opponent(props:{name:string,cards:number})
-{ 
+import { BoardProps } from "boardgame.io/react";
+import { DixitGameState } from "./Game";
+
+function Opponent(props: { name: string, cards: number }) {
     return (
         <div className="opponent">
-            <CardPile cards={Array<string>(props.cards).fill(backside)} size="100px"/>
+            <CardPile cards={Array<string>(props.cards).fill(backside)} size="100px" />
             <h1>{props.name}</h1>
         </div>
     )
 }
 
-function OpponentList(props:{opponents:{name:string,cards:number}[]})
-{
-    const listOp = props.opponents.map((op,idx)=>(
-        <Opponent name={op.name} cards={op.cards} key={idx}/>
+function OpponentList(props: { opponents: { name: string, cards: number }[] }) {
+    const listOp = props.opponents.map((op, idx) => (
+        <Opponent name={op.name} cards={op.cards} key={idx} />
     ));
     return (
         <div className="opponentList">
@@ -25,38 +25,36 @@ function OpponentList(props:{opponents:{name:string,cards:number}[]})
     )
 }
 
-function Cards(props:{cards:string[]})
-{
-    const list=props.cards.map((value,idx)=>(
+function Cards(props: { cards: string[] }) {
+    const list = props.cards.map((value, idx) => (
         <div key={idx}>
-            <img src={value} alt={value}/>
+            <img src={value} alt={value} />
         </div>
     ))
     return (
         <div className="cards">
-        {list}
+            {list}
         </div>
     )
 }
 
-function CardPile(props:{cards:string[], size:string})
-{
-    const list=props.cards.map((value,idx)=>(
+function CardPile(props: { cards: string[], size: string }) {
+    const list = props.cards.map((value, idx) => (
         <img src={value} alt={value} key={idx} style={
-            {transform: 'rotate('+((idx-props.cards.length/2)*-5)+'deg)',
-             height: props.size
+            {
+                transform: 'rotate(' + ((idx - props.cards.length / 2) * -5) + 'deg)',
+                height: props.size
             }
-        }/>
+        } />
     ))
     return (
         <div className="cardpile">
-        {list}
+            {list}
         </div>
     )
 }
 
-function Command(props:any)
-{
+function Command(props: any) {
     return (
         <div className="command">
             <div>Enter a phrase:</div>
@@ -66,39 +64,41 @@ function Command(props:any)
     )
 }
 
-function CardsToChoose(props:{cards:string[], handler:(idx:number)=>void})
-{
-    const list=props.cards.map((value,idx)=>(
+function CardsToChoose(props: { cards: string[], handler: (idx: number) => void }) {
+    const list = props.cards.map((value, idx) => (
         <div key={idx}>
-            <img src={value} alt={value}/>
-            <br/>
-            <button onClick={()=>props.handler(idx)}>Choose this</button> 
+            <img src={value} alt={value} />
+            <br />
+            <button onClick={() => props.handler(idx)}>Choose this</button>
         </div>
     ))
     return (
         <div className="cards">
-        {list}
+            {list}
         </div>
     )
 }
 
-export function DixitBoard(){
-    const images = imageLoader()
-    const opponents = [
-        {name:"Mark",cards:6},
-        {name:"Lisa",cards:6},
-        {name:"Benny",cards:6}
-    ]
-    const handcards = images.slice(0,4);
-    console.log(images[0]);
-
-    return (
-        <div className="board">
-            <OpponentList opponents={opponents}/>
-            <CardPile cards={[backside,backside,backside,backside]} size="200px" />
-            <Command/>
-            <CardsToChoose cards={handcards} handler={(idx:number)=>{}}/>
-        </div>
-    )
+export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any> {
+    render() {
+        const images = imageLoader()
+        
+        const opponents = [
+            { name: "Mark", cards: 6 },
+            { name: "Lisa", cards: 6 },
+            { name: "Hugo", cards: 6 }
+        ]
+        
+        const playerID = this.props.ctx.playerID || '';
+        console.log(playerID);
+        return (
+            <div className="board">
+                <OpponentList opponents={opponents} />
+                <CardPile cards={[backside, backside, backside, backside]} size="200px" />
+                <Command />
+                <CardsToChoose cards={this.props.G.players[playerID].hand} handler={(idx: number) => { }} />
+            </div>
+        )
+    }
 }
 //export class DixitBoard extends React.Component<BoardProps<TicTacToeGameState>, never> {}

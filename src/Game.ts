@@ -72,17 +72,17 @@ export function endPhase(G: DixitGameState, ctx: Ctx) {
 //all moves
 export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: string) {
     //if no player is give, it is an invalid move
-    if (ctx.playerID == undefined) {
+    if (ctx.playerID === undefined) {
         return INVALID_MOVE;
     }
     //only current player may move
-    if (ctx.playerID != ctx.currentPlayer) {
+    if (ctx.playerID !== ctx.currentPlayer) {
         return INVALID_MOVE;
     }
     const plystate = G.players[ctx.playerID];
     //if not on hand, it is an invalid move
     const idx: number = plystate.hand.indexOf(image);
-    if (idx == -1) {
+    if (idx === -1) {
         return INVALID_MOVE;
     }
 
@@ -110,13 +110,13 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
         return INVALID_MOVE;
     }
     //only other players may move
-    if (ctx.playerID == ctx.currentPlayer) {
+    if (ctx.playerID === ctx.currentPlayer) {
         return INVALID_MOVE;
     }
     const plystate = G.players[ctx.playerID];
     //if not on hand, it is an invalid move
     const idx: number = plystate.hand.indexOf(image);
-    if (idx == -1) {
+    if (idx === -1) {
         return INVALID_MOVE;
     }
 
@@ -133,7 +133,7 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if last, move to next state
     let allInWatingButMe: boolean = true;
     for (let playerID in ctx.activePlayers) {
-        if (ctx.activePlayers[playerID] != 'Waiting' && playerID != ctx.playerID) {
+        if (ctx.activePlayers[playerID] !== 'Waiting' && playerID !== ctx.playerID) {
             allInWatingButMe = false;
         }
     }
@@ -160,12 +160,12 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
         return INVALID_MOVE;
     }
     //only other players may move
-    if (ctx.playerID == ctx.currentPlayer) {
+    if (ctx.playerID === ctx.currentPlayer) {
         return INVALID_MOVE;
     }
     //if not on voting, it is an invalid move
     const idx: number = G.secret.playedCards.map(c => c.str).indexOf(image);
-    if (idx == -1) {
+    if (idx === -1) {
         return INVALID_MOVE;
     }
 
@@ -175,7 +175,7 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if last, move to next state
     let allInWatingButMe: boolean = true;
     for (let playerID in ctx.activePlayers) {
-        if (ctx.activePlayers[playerID] != 'Waiting' && playerID != ctx.playerID) {
+        if (ctx.activePlayers[playerID] !== 'Waiting' && playerID !== ctx.playerID) {
             allInWatingButMe = false;
         }
     }
