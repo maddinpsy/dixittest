@@ -164,7 +164,7 @@ class CardsFullInfo extends React.Component<{playedCards:PlayedCard[], playerInf
 class StageWaiting extends React.Component<StageProps> {
     playedCards(){
         const playerIDs = Object.keys(this.props.public.players);
-        if(playerIDs.length>0){
+        if(playerIDs.length>0 && playerIDs[0]!=="null"){
             const playedCards = this.props.public.players[playerIDs[0]].playedCards;
             if(playedCards!==undefined){
                 //info about played cards is available
@@ -194,6 +194,7 @@ interface StageProps {
     storyTellerName : string,
     onChooseStory?: (phrase: string, image: string) => void
     onChooseCard?: (image: string) => void
+    onEndButtonClicked?: () => void
 }
 
 class StageStorytelling extends React.Component<StageProps, { phrase: string }>
@@ -288,12 +289,13 @@ class StageFinish extends React.Component<StageProps>
     constructor(props: any) {
         super(props);
     }
- 
+
     render() {
         return (
             <div className="board finish">
                 <OpponentList opponents={this.props.others} />
                 <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.public.playerInfo} />
+                <button onClick={this.props.onEndButtonClicked}>End Round</button>
                 <Cards cards={this.props.myhand} />
             </div>
         )
@@ -325,7 +327,7 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
             case 'VoteStory':
                 return (<StageVoteStory myhand={ownCards} others={others}  storyTellerName={storyteller} public={this.props.G} onChooseCard={this.props.moves.VoteCard}/>);
             case 'Finish':
-                return (<StageFinish myhand={ownCards} others={others} storyTellerName={storyteller} public={this.props.G} />);
+                return (<StageFinish myhand={ownCards} others={others} storyTellerName={storyteller} public={this.props.G} onEndButtonClicked={this.props.moves.EndTurn} />);
         }
     }
 }

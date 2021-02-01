@@ -17,8 +17,8 @@ export interface DixitGameState {
     },
     players:
     {
-        [key: string]: { 
-            hand: string[] 
+        [key: string]: {
+            hand: string[]
             playedCards?: PlayedCard[]
         }
     }
@@ -59,7 +59,7 @@ function updatePublicKnowledge(G: DixitGameState, ctx: Ctx) {
     }
 
     //everything to curret player
-    G.players[ctx.currentPlayer].playedCards=G.secret.playedCards;
+    G.players[ctx.currentPlayer].playedCards = G.secret.playedCards;
 }
 
 export function setupTurn(G: DixitGameState, ctx: Ctx) {
@@ -67,7 +67,7 @@ export function setupTurn(G: DixitGameState, ctx: Ctx) {
     G.phrase = '';
     G.playedCards = [];
     G.secret.playedCards = [];
-    for(let pId in G.players){
+    for (let pId in G.players) {
         G.players[pId].playedCards = undefined;
     }
     //draw six cards each
@@ -164,10 +164,10 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
         //shuffle and show cards                
         if (ctx.random?.Shuffle)
             G.secret.playedCards = ctx.random.Shuffle(G.secret.playedCards);
-        if(!G.playedCards)
-        G.playedCards=[];
+        if (!G.playedCards)
+            G.playedCards = [];
         for (let i = 0; i < G.secret.playedCards.length; i++) {
-            G.playedCards.push({ str: G.secret.playedCards[i].str, votedBy:[]});
+            G.playedCards.push({ str: G.secret.playedCards[i].str, votedBy: [] });
         }
 
         //goto next stage
@@ -211,12 +211,16 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
         //move to next stage
         if (ctx.events?.setActivePlayers) ctx.events.setActivePlayers({
             currentPlayer: { stage: 'Finish', moveLimit: 1 },
+            others: { stage: 'Finish', moveLimit: 0 },
         });
     }
 }
 
 export function EndTurn(G: DixitGameState, ctx: Ctx) {
-    if (ctx.events?.endTurn) ctx.events.endTurn();
+    if (ctx.playerID != ctx.currentPlayer)
+        return INVALID_MOVE;
+    if (ctx.events?.endTurn)
+        ctx.events.endTurn();
 }
 
 const PhaseSetup = {
