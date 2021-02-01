@@ -43,7 +43,7 @@ it('plays a whole turn with four multiplayers', () => {
 
   //make first move
   const p0Card = p0.getState()?.G.players['0'].hand[3] || '';
-  expect(p0Card).not.toBe('');
+  expect(p0Card).not.toEqual('');
   p0.moves.SelectStory('Honolulu', p0Card);
   //check hand
   expect(p0.getState()?.G.players['0'].hand.length).toEqual(5);
@@ -58,31 +58,31 @@ it('plays a whole turn with four multiplayers', () => {
 
   //p1 choose card
   const p1Card = p1.getState()?.G.players['1'].hand[2] || '';
-  expect(p1Card).not.toBe('');
+  expect(p1Card).not.toEqual('');
   p1.moves.SelectCard(p1Card)
   //check stages
-  expect(p1.getState()?.ctx.activePlayers).toEqual({ '0': 'Waiting', '1': 'Waiting', '2': 'AddOwnCard', '3': 'AddOwnCard' });
+  expect(p1.getState()?.ctx.activePlayers).toEqual({ '0': 'Waiting', '2': 'AddOwnCard', '3': 'AddOwnCard' });
   //check hand
   expect(p1.getState()?.G.players['1'].hand.length).toEqual(5);
   expect(p1.getState()?.G.players['1'].hand.length).not.toContain(p1Card);
   //check nothing published
-  expect(p1.getState()?.G.playedCards).toBe(undefined);
+  expect(p1.getState()?.G.playedCards).toEqual([]);
 
   //p2 choose card
   const p2Card = p2.getState()?.G.players['2'].hand[5] || '';
-  expect(p2Card).not.toBe('');
+  expect(p2Card).not.toEqual('');
   p2.moves.SelectCard(p2Card);
   //check stages
-  expect(p2.getState()?.ctx.activePlayers).toEqual({ '0': 'Waiting', '1': 'Waiting', '2': 'Waiting', '3': 'AddOwnCard' });
+  expect(p2.getState()?.ctx.activePlayers).toEqual({ '0': 'Waiting', '3': 'AddOwnCard' });
   //check hand
   expect(p2.getState()?.G.players['2'].hand.length).toEqual(5);
   expect(p2.getState()?.G.players['2'].hand.length).not.toContain(p2Card);
   //check nothing published
-  expect(p2.getState()?.G.playedCards).toBe(undefined);
+  expect(p2.getState()?.G.playedCards).toEqual([]);
 
   //p3 choose card
   const p3Card = p3.getState()?.G.players['3'].hand[1] || '';
-  expect(p3Card).not.toBe('');
+  expect(p3Card).not.toEqual('');
   p3.moves.SelectCard(p3Card);
   //check stages
   expect(p3.getState()?.ctx.activePlayers).toEqual({ '0': 'Waiting', '1': 'VoteStory', '2': 'VoteStory', '3': 'VoteStory' });
@@ -90,58 +90,28 @@ it('plays a whole turn with four multiplayers', () => {
   expect(p3.getState()?.G.players['3'].hand.length).toEqual(5);
   expect(p3.getState()?.G.players['3'].hand.length).not.toContain(p3Card);
   //check all cards published
-  expect(p0.getState()?.G.playedCards).toContain(p1Card);
-  expect(p1.getState()?.G.playedCards).toContain(p3Card);
-  expect(p2.getState()?.G.playedCards).toContain(p2Card);
-  expect(p3.getState()?.G.playedCards).toContain(p0Card);
+  expect(p3.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p0Card})]));
+  expect(p2.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p1Card})]));
+  expect(p1.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p2Card})]));
+  expect(p0.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p3Card})]));
 
   //Voting
   p1.moves.VoteCard(p0Card);
   p2.moves.VoteCard(p1Card);
   //check nothing published
-  expect(p3.getState()?.G.playedCards[p0Card].playedBy).toBe(undefined);
-  expect(p3.getState()?.G.playedCards[p1Card].playedBy).toBe(undefined);
-  expect(p1.getState()?.G.playedCards[p1Card].playedBy).toBe(undefined);
+  expect(p3.getState()?.G.playedCards[0].playedBy).toEqual(undefined);
+  expect(p3.getState()?.G.playedCards[1].playedBy).toEqual(undefined);
+  expect(p1.getState()?.G.playedCards[2].playedBy).toEqual(undefined);
   //check stages
-  expect(p3.getState()?.ctx.activePlayers).toEqual({ '0': 'Waiting', '1': 'Waiting', '2': 'Waiting', '3': 'VoteStory' });
+  expect(p3.getState()?.ctx.activePlayers).toEqual({ '0': 'Waiting', '3': 'VoteStory' });
 
   p3.moves.VoteCard(p0Card);
   //check everything published
-  expect(p0.getState()?.G.playedCards[p0Card].playedBy).toBe('0');
-  expect(p0.getState()?.G.playedCards[p1Card].playedBy).toBe('0');
-  expect(p0.getState()?.G.playedCards[p2Card].playedBy).toBe('0');
-  expect(p0.getState()?.G.playedCards[p3Card].playedBy).toBe('0');
-  expect(p0.getState()?.G.playedCards[p0Card].votedBy).toContain('1');
-  expect(p0.getState()?.G.playedCards[p0Card].votedBy).toContain('3');
-  expect(p0.getState()?.G.playedCards[p1Card].votedBy).toContain('2');
-  expect(p0.getState()?.G.playedCards[p3Card].votedBy).toEqual(undefined);
-  
-  expect(p1.getState()?.G.playedCards[p0Card].playedBy).toBe('0');
-  expect(p1.getState()?.G.playedCards[p1Card].playedBy).toBe('0');
-  expect(p1.getState()?.G.playedCards[p2Card].playedBy).toBe('0');
-  expect(p1.getState()?.G.playedCards[p3Card].playedBy).toBe('0');
-  expect(p1.getState()?.G.playedCards[p0Card].votedBy).toContain('1');
-  expect(p1.getState()?.G.playedCards[p0Card].votedBy).toContain('3');
-  expect(p1.getState()?.G.playedCards[p1Card].votedBy).toContain('2');
-  expect(p1.getState()?.G.playedCards[p3Card].votedBy).toEqual(undefined);
+  expect(p0.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p0Card,playedBy:'0',votedBy:['1','3']})]))
+  expect(p0.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p1Card,playedBy:'1',votedBy:['2']})]))
+  expect(p0.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p2Card,playedBy:'2',votedBy:[]})]))
+  expect(p0.getState()?.G.playedCards).toEqual(expect.arrayContaining([expect.objectContaining({str:p3Card,playedBy:'3',votedBy:[]})]))
 
-  expect(p2.getState()?.G.playedCards[p0Card].playedBy).toBe('0');
-  expect(p2.getState()?.G.playedCards[p1Card].playedBy).toBe('0');
-  expect(p2.getState()?.G.playedCards[p2Card].playedBy).toBe('0');
-  expect(p2.getState()?.G.playedCards[p3Card].playedBy).toBe('0');
-  expect(p2.getState()?.G.playedCards[p0Card].votedBy).toContain('1');
-  expect(p2.getState()?.G.playedCards[p0Card].votedBy).toContain('3');
-  expect(p2.getState()?.G.playedCards[p1Card].votedBy).toContain('2');
-  expect(p2.getState()?.G.playedCards[p3Card].votedBy).toEqual(undefined);
-
-  expect(p3.getState()?.G.playedCards[p0Card].playedBy).toBe('0');
-  expect(p3.getState()?.G.playedCards[p1Card].playedBy).toBe('0');
-  expect(p3.getState()?.G.playedCards[p2Card].playedBy).toBe('0');
-  expect(p3.getState()?.G.playedCards[p3Card].playedBy).toBe('0');
-  expect(p3.getState()?.G.playedCards[p0Card].votedBy).toContain('1');
-  expect(p3.getState()?.G.playedCards[p0Card].votedBy).toContain('3');
-  expect(p3.getState()?.G.playedCards[p1Card].votedBy).toContain('2');
-  expect(p3.getState()?.G.playedCards[p3Card].votedBy).toEqual(undefined);
   //check stages
   expect(p3.getState()?.ctx.activePlayers).toEqual({ '0': 'Finish', '1': 'Waiting', '2': 'Waiting', '3': 'Waiting' });
   expect(p2.getState()?.ctx.activePlayers).toEqual({ '0': 'Finish', '1': 'Waiting', '2': 'Waiting', '3': 'Waiting' });

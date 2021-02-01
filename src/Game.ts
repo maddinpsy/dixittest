@@ -19,11 +19,10 @@ export interface DixitGameState {
     }
     phrase?: string;
     playedCards: {
-        [str: string]: {
+            str: string,
             playedBy?: PlayerID,
             votedBy?: PlayerID[]
-        }
-    }
+        }[]
 }
 
 export function setupGame(ctx: Ctx) {
@@ -34,7 +33,7 @@ export function setupGame(ctx: Ctx) {
             playedCards: []
         },
         players: {},
-        playedCards: {}
+        playedCards: []
     }
     //shuffle deck
     G.secret.drawPile = ctx.random?.Shuffle(G.secret.drawPile) || [];
@@ -134,11 +133,20 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if last, move to next state
     let allInWatingButMe: boolean = true;
     for (let playerID in ctx.activePlayers) {
-        if (ctx.activePlayers[playerID] != 'Waiting' || playerID != ctx.playerID) {
+        if (ctx.activePlayers[playerID] != 'Waiting' && playerID != ctx.playerID) {
             allInWatingButMe = false;
         }
     }
     if (allInWatingButMe) {
+        //shuffle and show cards                
+        if(ctx.random?.Shuffle)
+        G.secret.playedCards = ctx.random.Shuffle(G.secret.playedCards);
+
+        for(let i=0;i<G.secret.playedCards.length;i++){
+            G.playedCards.push({str:G.secret.playedCards[i].str});
+        }
+
+        //goto next stage
         if(ctx.events?.setActivePlayers) ctx.events.setActivePlayers ({
             currentPlayer: { stage: 'Waiting', moveLimit: 1 },
             others: { stage: 'VoteStory', moveLimit: 1 }
@@ -167,11 +175,17 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
     //if last, move to next state
     let allInWatingButMe: boolean = true;
     for (let playerID in ctx.activePlayers) {
-        if (ctx.activePlayers[playerID] != 'Waiting' || playerID != ctx.playerID) {
+        if (ctx.activePlayers[playerID] != 'Waiting' && playerID != ctx.playerID) {
             allInWatingButMe = false;
         }
     }
     if (allInWatingButMe) {
+        //show voting
+        for(let i=0;i<G.secret.playedCards.length;i++){
+            G.playedCards[i].votedBy = G.secret.playedCards[i].votedBy;
+            G.playedCards[i].playedBy = G.secret.playedCards[i].playedBy;
+        }
+        //move to next stage
         if(ctx.events?.setActivePlayers) ctx.events.setActivePlayers ({
             currentPlayer: { stage: 'Finish', moveLimit: 1 },
             others: { stage: 'Waiting', moveLimit: 1 }
