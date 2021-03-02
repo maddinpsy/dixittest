@@ -1,22 +1,29 @@
 import * as React from "react";
 import "./style.scss";
 import { ButtonBack } from "components/ButtonBack";
-import { Trans, useTranslation } from "react-i18next";
+import { Trans, withTranslation, WithTranslation } from "react-i18next";
 import { Button } from "components/Button";
 import { LobbyPage, SmallLogo } from "components/LobbyPage";
 import { ButtonLang } from "components/ButtonLang";
 import { Input } from "components/Input";
 
+interface SetupNicknameProps {
+  nickname?: string,
+  onSubmit?: (newNickname: string) => void
+}
 
-export class SetupNickname extends React.Component<{ nickname?: string, onSubmit?: (newNickname: string) => void }, { nickname: string }>
+interface SetupNicknameState {
+  nickname: string
+}
+
+//class SetupNickname extends React.Component<SetupNicknameProps, SetupNicknameState>
+class SetupNicknameRaw extends React.Component<WithTranslation & SetupNicknameProps, SetupNicknameState>
 {
 
 
   constructor(props: any) {
     super(props);
-    if (this.props.nickname) {
-      this.state = { nickname: this.props.nickname };
-    }
+    this.state = { nickname: this.props.nickname || ""};
     this.handleChanged = this.handleChanged.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -30,7 +37,6 @@ export class SetupNickname extends React.Component<{ nickname?: string, onSubmit
     this.props.onSubmit && this.props.onSubmit(this.state.nickname);
   };
   render() {
-    const { t } = useTranslation();
     return (
       <LobbyPage>
         <ButtonBack to="/create" />
@@ -43,7 +49,7 @@ export class SetupNickname extends React.Component<{ nickname?: string, onSubmit
 
         <form onSubmit={this.handleSubmit} className="SetupNickname__form">
           <Input
-            placeholder={t("Type in something cool...")}
+            placeholder={this.props.t("Type in something cool...")}
             className="SetupNickname__input"
             onChange={(e) => this.handleChanged(e.target.value)}
             value={this.state.nickname}
@@ -58,3 +64,5 @@ export class SetupNickname extends React.Component<{ nickname?: string, onSubmit
   }
 
 };
+
+export const SetupNickname = withTranslation()(SetupNicknameRaw)

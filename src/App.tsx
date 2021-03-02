@@ -5,16 +5,17 @@ import './App.css';
 import { DixitBoard } from './Board';
 import { Dixit } from './Game';
 import {
+  Router,
   Route,
-  Switch,
-  useHistory,
+  Switch
 } from "react-router-dom";
+import { createBrowserHistory } from "history";
 import { Welcome } from "./components/Welcome";
 import { CreateGame } from 'components/CreateGame';
 import { SetupNickname } from 'components/SetupNickname';
 import { LobbyClient } from 'boardgame.io/client';
 
-const NICKNAME_STORAGE_KEY="DIXIT_NICKNAME"
+const NICKNAME_STORAGE_KEY = "DIXIT_NICKNAME"
 
 export interface Player {
   id: number;
@@ -50,28 +51,48 @@ async getRoomMetadata(roomID: string): Promise<RoomMetadata> {
   return await this.api.get(roomID).json<{ players: Player[] }>();
 }
 */
+interface AppProps {
+}
 
-class App extends React.Component<{}, { nickname?: string, roomMetaData?: any }>
+interface AppState {
+  nickname?: string
+  roomMetaData?: any
+  matchID?: string
+}
+
+
+class App extends React.Component<AppProps, AppState>
 {
-  constructor(props: any) {
+  lobbyClient: LobbyClient;
+  constructor(props: AppProps) {
     super(props);
-    const lobbyClient = new LobbyClient({ server: 'http://localhost:8000' });
-    lobbyClient.getMatch()
+    this.lobbyClient = new LobbyClient({ server: 'http://localhost:8000' });
+    this.state = {}
     const savedNickname = localStorage.getItem(NICKNAME_STORAGE_KEY);
-    if(savedNickname){
+    if (savedNickname) {
       this.state = { nickname: savedNickname };
     }
     this.setNickname = this.setNickname.bind(this);
+    this.newGame = this.newGame.bind(this);
   }
 
   setNickname(newNickname: string) {
     this.setState({ nickname: newNickname });
   }
 
+  newGame(playerCount: number) {
+    this.lobbyClient.createMatch(Dixit.name || "", { numPlayers: playerCount })
+      .then((x) => { this.setState({ matchID: x.matchID }) })
+      .catch((reason) => console.log("Error creating new Game:" + reason));
+  }
+
   render() {
     let nickname = this.state.nickname;
+    let matchID = this.state.matchID;
+    const history = createBrowserHistory();
     return (
       <div className="App" >
+        <Router history = {history}>
         <Switch>
           {/* TODO: Use modal for nickname creation instead of conditional rendering */}
           <Route exact path="/">
@@ -79,21 +100,26 @@ class App extends React.Component<{}, { nickname?: string, roomMetaData?: any }>
           </Route>
 
           <Route exact path="/create">
-            {nickname ? <CreateGame /> : <SetupNickname nickname={nickname} onSubmit={this.setNickname}/>}
+            {nickname ?
+              <CreateGame nickname={nickname} onCreateGameRoom={this.newGame} roomID={matchID} />
+              :
+              <SetupNickname nickname={nickname} onSubmit={this.setNickname} />
+            }
           </Route>
 
           <Route exact path="/rooms/:id">
-            {nickname ? <GameLobby /> : <SetupNickname />}
+            {/*nickname ? <GameLobby /> : <SetupNickname />*/}
           </Route>
 
           <Route path="/rooms/:id/watch/:watchId">
-            <GameLobbySpectator />
+            {/*<GameLobbySpectator />*/}
           </Route>
 
           <Route path="/nickname">
             <SetupNickname onSubmit={() => history.push("/create")} />
           </Route>
         </Switch>
+        </Router>
       </div>
     );
   }

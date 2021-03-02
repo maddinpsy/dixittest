@@ -30,8 +30,8 @@ const CreateGameButton: React.FC<ButtonProps & Props> = ({
 };
 
 interface CreateGameProps{
-  createGameRoom : (playerCount:number)=>void
-  nickname?:string
+  onCreateGameRoom : (playerCount:number)=>void
+  nickname:string
   roomID?:string
 }
 
@@ -60,17 +60,17 @@ export class CreateGame extends React.Component<CreateGameProps> {
           <CreateGameButton
             theme="pink"
             playerCount={2}
-            onClick={this.props.createGameRoom}
+            onClick={this.props.onCreateGameRoom}
           />
           <CreateGameButton
             theme="yellow"
             playerCount={3}
-            onClick={this.props.createGameRoom}
+            onClick={this.props.onCreateGameRoom}
           />
           <CreateGameButton
             theme="blue"
             playerCount={4}
-            onClick={this.props.createGameRoom}
+            onClick={this.props.onCreateGameRoom}
           />
         </div>
       </LobbyPage>
