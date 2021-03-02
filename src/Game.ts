@@ -223,10 +223,11 @@ export function EndTurn(G: DixitGameState, ctx: Ctx) {
         ctx.events.endTurn();
 }
 
-const PhaseSetup = {
-}
 
-const PhaseMain: Game<DixitGameState, Ctx> = {
+export const Dixit: Game<DixitGameState, Ctx> = {
+    name:"Dixit",
+    minPlayers: 3,
+    maxPlayers: 6,
     playerView: PlayerView.STRIP_SECRETS,
     setup: setupGame,
     phases: {
@@ -265,4 +266,3 @@ const PhaseMain: Game<DixitGameState, Ctx> = {
     },
 };
 
-export const Dixit: Game<DixitGameState, Ctx> = { ...PhaseSetup, ...PhaseMain }; 
