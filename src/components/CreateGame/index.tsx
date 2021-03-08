@@ -58,7 +58,7 @@ export class CreateGame extends React.Component<CreateGameProps> {
         </h3>
         <div className="CreateGame__options">
           <CreateGameButton
-            theme="pink"
+            theme="orange"
             playerCount={2}
             onClick={this.props.onCreateGameRoom}
           />

@@ -9,15 +9,15 @@
   font-weight: 500;
   color: $c-white;
   outline: none;
-  background: darken($c-violet, 5%);
-  @include inverse-shadow($color: $c-violet);
+  background: darken($c-orange, 5%);
+  @include inverse-shadow($color: $c-orange);
 
   &[disabled] {
-    background: $c-violet;
+    background: $c-orange;
   }
 
   &::placeholder {
-    color: lighten($c-violet, 5%);
+    color: lighten($c-orange, 5%);
     font-size: 18px;
     font-weight: 500;
   }

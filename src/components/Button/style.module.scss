@@ -24,8 +24,8 @@
   color: $c-white;
   cursor: pointer;
 
-  &--pink {
-    @include buttonTheme($c-pink);
+  &--orange {
+    @include buttonTheme($c-orange);
   }
 
   &--yellow {
