@@ -1,8 +1,5 @@
 import React from 'react';
-import { Client, Lobby } from 'boardgame.io/react';
-import { Local } from 'boardgame.io/multiplayer';
 import './App.css';
-import { DixitBoard } from './Board';
 import { Dixit } from './Game';
 import {
   Router,
@@ -75,7 +72,6 @@ export class App extends React.Component<NicknameProps, AppState>
   }
 
   render() {
-    let nickname = this.props.nickname;
     let matchID = this.state.matchID;
     const history = createBrowserHistory();
     return (
@@ -84,7 +80,7 @@ export class App extends React.Component<NicknameProps, AppState>
         <Switch>
           
           <Route exact path="/">
-              <CreateGame nickname={nickname} onRequestChangeNickname={this.props.requestChangeNickname} onCreateGameRoom={this.newGame} roomID={matchID} />
+              <CreateGame {...this.props} onCreateGameRoom={this.newGame} roomID={matchID} />
           </Route>
 
           <Route exact path="/rooms/:id">

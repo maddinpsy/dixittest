@@ -1,6 +1,5 @@
 import * as React from "react";
 import "./style.scss";
-import { ButtonBack } from "components/ButtonBack";
 import { Trans, withTranslation, WithTranslation } from "react-i18next";
 import { Button } from "components/Button";
 import { LobbyPage, SmallLogo } from "components/LobbyPage";
