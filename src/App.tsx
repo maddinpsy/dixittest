@@ -12,10 +12,10 @@ import {
 import { createBrowserHistory } from "history";
 import { Welcome } from "./components/Welcome";
 import { CreateGame } from 'components/CreateGame';
-import { SetupNickname } from 'components/SetupNickname';
 import { LobbyClient } from 'boardgame.io/client';
+import { InjectedProps, NicknameHOC } from 'components/SetupNickname/NicknameHOC';
 
-const NICKNAME_STORAGE_KEY = "DIXIT_NICKNAME"
+
 
 export interface Player {
   id: number;
@@ -51,33 +51,22 @@ async getRoomMetadata(roomID: string): Promise<RoomMetadata> {
   return await this.api.get(roomID).json<{ players: Player[] }>();
 }
 */
-interface AppProps {
-}
+
 
 interface AppState {
-  nickname?: string
   roomMetaData?: any
   matchID?: string
 }
 
 
-class App extends React.Component<AppProps, AppState>
+class RawApp extends React.Component<InjectedProps, AppState>
 {
   lobbyClient: LobbyClient;
-  constructor(props: AppProps) {
+  constructor(props: InjectedProps) {
     super(props);
     this.lobbyClient = new LobbyClient({ server: 'http://localhost:8000' });
     this.state = {}
-    const savedNickname = localStorage.getItem(NICKNAME_STORAGE_KEY);
-    if (savedNickname) {
-      this.state = { nickname: savedNickname };
-    }
-    this.setNickname = this.setNickname.bind(this);
     this.newGame = this.newGame.bind(this);
-  }
-
-  setNickname(newNickname: string) {
-    this.setState({ nickname: newNickname });
   }
 
   newGame(playerCount: number) {
@@ -87,7 +76,7 @@ class App extends React.Component<AppProps, AppState>
   }
 
   render() {
-    let nickname = this.state.nickname;
+    let nickname = this.props.nickname;
     let matchID = this.state.matchID;
     const history = createBrowserHistory();
     return (
@@ -100,11 +89,7 @@ class App extends React.Component<AppProps, AppState>
           </Route>
 
           <Route exact path="/create">
-            {nickname ?
-              <CreateGame nickname={nickname} onCreateGameRoom={this.newGame} roomID={matchID} />
-              :
-              <SetupNickname nickname={nickname} onSubmit={this.setNickname} />
-            }
+              <CreateGame nickname={nickname} onRequestChangeNickname={this.props.requestChangeNickname} onCreateGameRoom={this.newGame} roomID={matchID} />
           </Route>
 
           <Route exact path="/rooms/:id">
@@ -115,9 +100,6 @@ class App extends React.Component<AppProps, AppState>
             {/*<GameLobbySpectator />*/}
           </Route>
 
-          <Route path="/nickname">
-            <SetupNickname onSubmit={() => history.push("/create")} />
-          </Route>
         </Switch>
         </Router>
       </div>
@@ -125,4 +107,4 @@ class App extends React.Component<AppProps, AppState>
   }
 }
 
-export default App;
+export default NicknameHOC(RawApp);

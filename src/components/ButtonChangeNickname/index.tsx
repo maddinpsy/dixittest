@@ -1,12 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import "./style.scss";
 import { Trans } from "react-i18next";
 
-export const ButtonChangeNickname = () => {
+export const ButtonChangeNickname = (props:{onRequestChangeNickname:()=>void}) => {
   return (
-    <Link to="/nickname" className="ButtonChangeNickname">
+    <span onClick={(e)=>{props.onRequestChangeNickname()}}>
       <Trans>Change Nickname</Trans>
-    </Link>
+    </span>
   );
 };

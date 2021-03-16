@@ -31,6 +31,7 @@ const CreateGameButton: React.FC<ButtonProps & Props> = ({
 
 interface CreateGameProps{
   onCreateGameRoom : (playerCount:number)=>void
+  onRequestChangeNickname :() => void
   nickname:string
   roomID?:string
 }
@@ -47,7 +48,7 @@ export class CreateGame extends React.Component<CreateGameProps> {
     return (
       <LobbyPage>
         <SmallLogo />
-        <ButtonChangeNickname />
+        <ButtonChangeNickname onRequestChangeNickname={this.props.onRequestChangeNickname}/>
         <ButtonLang />
 
         <h3 className="CreateGame__title">

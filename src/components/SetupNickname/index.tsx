@@ -8,8 +8,9 @@ import { ButtonLang } from "components/ButtonLang";
 import { Input } from "components/Input";
 
 interface SetupNicknameProps {
-  nickname?: string,
-  onSubmit?: (newNickname: string) => void
+  nickname: string,
+  onSubmit: (newNickname: string) => void
+  onBack: () => void
 }
 
 interface SetupNicknameState {
