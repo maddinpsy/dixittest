@@ -10,7 +10,6 @@ import {
   Switch
 } from "react-router-dom";
 import { createBrowserHistory } from "history";
-import { Welcome } from "./components/Welcome";
 import { CreateGame } from 'components/CreateGame';
 import { LobbyClient } from 'boardgame.io/client';
 import { NicknameProps} from 'components/NicknameOverlay';
@@ -83,12 +82,8 @@ export class App extends React.Component<NicknameProps, AppState>
       <div className="App" >
         <Router history = {history}>
         <Switch>
-          {/* TODO: Use modal for nickname creation instead of conditional rendering */}
+          
           <Route exact path="/">
-            <Welcome />
-          </Route>
-
-          <Route exact path="/create">
               <CreateGame nickname={nickname} onRequestChangeNickname={this.props.requestChangeNickname} onCreateGameRoom={this.newGame} roomID={matchID} />
           </Route>
 
