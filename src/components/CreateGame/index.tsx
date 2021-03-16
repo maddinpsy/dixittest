@@ -1,7 +1,6 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import "./style.scss";
-import { ButtonChangeNickname } from "../ButtonChangeNickname";
 import { Trans } from "react-i18next";
 import { ButtonLang } from "components/ButtonLang";
 import { Button, ButtonProps } from "components/Button";
@@ -48,12 +47,16 @@ export class CreateGame extends React.Component<CreateGameProps> {
     return (
       <LobbyPage>
         <SmallLogo />
-        <ButtonChangeNickname onRequestChangeNickname={this.props.onRequestChangeNickname}/>
         <ButtonLang />
 
         <h3 className="CreateGame__title">
           <Trans>Welcome {{ nickname }}!</Trans>
         </h3>
+
+        <Button onClick={(e)=>{this.props.onRequestChangeNickname()}}>
+          <Trans>Change Nickname</Trans>
+        </Button>
+
         <h3 className="CreateGame__subtitle">
           <Trans>How many players do you want to play with?</Trans>
         </h3>

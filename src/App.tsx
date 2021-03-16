@@ -13,7 +13,7 @@ import { createBrowserHistory } from "history";
 import { Welcome } from "./components/Welcome";
 import { CreateGame } from 'components/CreateGame';
 import { LobbyClient } from 'boardgame.io/client';
-import { InjectedProps, NicknameHOC } from 'components/SetupNickname/NicknameHOC';
+import { NicknameProps} from 'components/NicknameOverlay';
 
 
 
@@ -59,10 +59,10 @@ interface AppState {
 }
 
 
-class RawApp extends React.Component<InjectedProps, AppState>
+export class App extends React.Component<NicknameProps, AppState>
 {
   lobbyClient: LobbyClient;
-  constructor(props: InjectedProps) {
+  constructor(props: NicknameProps) {
     super(props);
     this.lobbyClient = new LobbyClient({ server: 'http://localhost:8000' });
     this.state = {}
@@ -106,5 +106,3 @@ class RawApp extends React.Component<InjectedProps, AppState>
     );
   }
 }
-
-export default NicknameHOC(RawApp);

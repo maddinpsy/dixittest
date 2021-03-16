@@ -40,7 +40,6 @@ class SetupNicknameRaw extends React.Component<WithTranslation & SetupNicknamePr
   render() {
     return (
       <LobbyPage>
-        <ButtonBack to="/create" />
         <ButtonLang />
         <SmallLogo />
 
@@ -58,6 +57,9 @@ class SetupNicknameRaw extends React.Component<WithTranslation & SetupNicknamePr
 
           <Button type="submit">
             <Trans>Save</Trans>
+          </Button>
+          <Button onClick={() => { this.props.onBack() }}> 
+          <Trans>Back</Trans>
           </Button>
         </form>
       </LobbyPage>

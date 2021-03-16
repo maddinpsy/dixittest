@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import {NicknameOverlay} from 'components/NicknameOverlay'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <NicknameOverlay />
   </React.StrictMode>,
   document.getElementById('root')
 );
