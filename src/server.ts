@@ -12,4 +12,11 @@ const server = Server({ games: [Dixit] });
 const frontEndAppBuildPath = path.resolve(__dirname, '.');
 server.app.use(serve(frontEndAppBuildPath))
 
-server.run(PORT);
+server.run(PORT, () => {
+    server.app.use(
+      async (ctx, next) => await serve(frontEndAppBuildPath)(
+        Object.assign(ctx, { path: 'index.html' }),
+        next
+      )
+    )
+  });

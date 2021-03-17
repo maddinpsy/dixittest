@@ -2,11 +2,10 @@ import React from 'react';
 import './App.css';
 import { Dixit } from './Game';
 import {
-  Router,
+  BrowserRouter,
   Route,
   Switch
 } from "react-router-dom";
-import { createBrowserHistory } from "history";
 import { CreateGame } from 'components/CreateGame';
 import { LobbyClient } from 'boardgame.io/client';
 import { NicknameProps} from 'components/NicknameOverlay';
@@ -73,26 +72,27 @@ export class App extends React.Component<NicknameProps, AppState>
 
   render() {
     let matchID = this.state.matchID;
-    const history = createBrowserHistory();
     return (
       <div className="App" >
-        <Router history = {history}>
+        <BrowserRouter>
         <Switch>
-          
           <Route exact path="/">
               <CreateGame {...this.props} onCreateGameRoom={this.newGame} roomID={matchID} />
           </Route>
 
-          <Route exact path="/rooms/:id">
-            {/*nickname ? <GameLobby /> : <SetupNickname />*/}
+          <Route path="/rooms/:id">
+            <span>Test Hallo Welt</span>
+            {/*<GameLobby />*/}
           </Route>
 
           <Route path="/rooms/:id/watch/:watchId">
             {/*<GameLobbySpectator />*/}
           </Route>
-
+          <Route path="/">
+              Defualt 
+          </Route>
         </Switch>
-        </Router>
+        </BrowserRouter>
       </div>
     );
   }

@@ -217,7 +217,7 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
 }
 
 export function EndTurn(G: DixitGameState, ctx: Ctx) {
-    if (ctx.playerID != ctx.currentPlayer)
+    if (ctx.playerID !== ctx.currentPlayer)
         return INVALID_MOVE;
     if (ctx.events?.endTurn)
         ctx.events.endTurn();
