@@ -4,7 +4,7 @@ import "./style.scss";
 import { Trans } from "react-i18next";
 import { LobbyPage, SmallLogo } from "components/LobbyPage";
 import { ButtonLang } from "components/ButtonLang";
-import { LobbyLink } from "components/LobbyLink";
+import { LobbyLink } from "./LobbyLink";
 
 import { Server } from "boardgame.io";
 import { Dixit } from 'Game';
