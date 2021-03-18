@@ -3,8 +3,8 @@ import { RouteComponentProps, useParams, withRouter } from "react-router-dom";
 import "./style.scss";
 import { Trans } from "react-i18next";
 import { LobbyPage, SmallLogo } from "components/LobbyPage";
-import { Button } from "components/Button";
 import { ButtonLang } from "components/ButtonLang";
+import { LobbyLink } from "components/LobbyLink";
 
 import { Server } from "boardgame.io";
 import { Dixit } from 'Game';
@@ -25,52 +25,8 @@ interface GameLobbySetupState {
   }
 }
 
-class LobbyLink extends React.Component<{}, { tooltipVisible: boolean }>
-{
-  supportsCopying: boolean = false;
 
-  constructor(props: GameLobbySetupProps & RouteComponentProps<{ id: string }>) {
-    super(props);
-    this.state = { tooltipVisible: false }
-    this.supportsCopying = !!document.queryCommandSupported("copy");
-    this.copyToClipboard = this.copyToClipboard.bind(this);
-    this.setTooltipVisible = this.setTooltipVisible.bind(this);
-  }
-  copyToClipboard(value: string) {
-    var textField = document.createElement("textarea");
-    textField.innerText = value;
-    textField.style.opacity = "0";
-    document.body.appendChild(textField);
-    textField.select();
-    document.execCommand("copy");
-    textField.remove();
-  }
 
-  setTooltipVisible(value: boolean) {
-    this.setState({ tooltipVisible: value });
-  }
-
-  render() {
-    return (
-      <div className="Lobby__link" >
-        <div className="Lobby__link-box">{window.location.href}</div>
-        { this.supportsCopying && (
-          <div className="Lobby__link-button">
-            <Button
-              onClick={() => {
-                this.copyToClipboard(window.location.href);
-                this.setTooltipVisible(true);
-                setTimeout(() => this.setTooltipVisible(false), 1500);
-              }}
-            >
-              <Trans>Copy</Trans>
-            </Button>
-          </div>
-        )}
-      </div >
-    )
-  }
-}
 class GameLobbySetupRaw extends React.Component<GameLobbySetupProps & RouteComponentProps<{ id: string }>, GameLobbySetupState>
 {
   matchID: string;
