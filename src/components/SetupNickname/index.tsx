@@ -16,11 +16,8 @@ interface SetupNicknameState {
   nickname: string
 }
 
-//class SetupNickname extends React.Component<SetupNicknameProps, SetupNicknameState>
 class SetupNicknameRaw extends React.Component<WithTranslation & SetupNicknameProps, SetupNicknameState>
 {
-
-
   constructor(props: any) {
     super(props);
     this.state = { nickname: this.props.nickname || ""};

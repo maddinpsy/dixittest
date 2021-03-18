@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SetupNickname } from "components/SetupNickname";
-import { App } from "../../App";
+import { App } from "App";
 
 export interface NicknameProps {
     nickname: string;
