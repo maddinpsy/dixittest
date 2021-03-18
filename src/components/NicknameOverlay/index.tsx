@@ -50,7 +50,7 @@ export class NicknameOverlay extends React.Component<{}, State> {
     render(): JSX.Element {
         let result;
         //if no nickname is set or nickname change is requested
-        if (this.state.nickname.trim().length === 0 || this.state.changeRequested) {
+        if (this.state.changeRequested) {
             // show nickname dilaog
             result = (
                 <div>

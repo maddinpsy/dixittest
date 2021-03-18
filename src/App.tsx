@@ -3,15 +3,15 @@ import './App.css';
 import { Dixit } from './Game';
 import {
   BrowserRouter,
+  Redirect,
   Route,
   Switch
 } from "react-router-dom";
 import { CreateGame } from 'components/CreateGame';
 import { LobbyClient } from 'boardgame.io/client';
 import { NicknameProps } from 'components/NicknameOverlay';
-import { Server } from "boardgame.io";
 import { GameLobbySetup } from "components/Lobby";
-
+import { Welcome } from "components/Welcome";
 
 interface AppState {
   matchID?: string
@@ -45,19 +45,20 @@ export class App extends React.Component<NicknameProps, AppState>
         <BrowserRouter>
           <Switch>
             <Route exact path="/">
+              <Welcome />
+            </Route>
+
+            <Route exact path="/create">
               <CreateGame {...this.props} onCreateGameRoom={this.newGame} roomID={matchID} />
             </Route>
 
             <Route exact path="/rooms/:id">
-              <GameLobbySetup nickname={this.props.nickname} lobbyClient={this.lobbyClient}/>
+              <GameLobbySetup nickname={this.props.nickname} lobbyClient={this.lobbyClient} />
             </Route>
 
-            <Route path="/rooms/:id/watch/:watchId">
-              {/*<GameLobbySpectator />*/}
+            <Route>
+              <Redirect to="/" />
             </Route>
-            <Route path="/">
-              Defualt
-          </Route>
           </Switch>
         </BrowserRouter>
       </div>

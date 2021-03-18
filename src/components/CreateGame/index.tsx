@@ -37,6 +37,14 @@ interface CreateGameProps{
 
 export class CreateGame extends React.Component<CreateGameProps> {
 
+  constructor(props:CreateGameProps)
+  {
+    super(props);
+    if(props.nickname.trim()===""){
+      props.requestChangeNickname();
+    }
+  }
+
   render(){
   
     let nickname = this.props.nickname;
