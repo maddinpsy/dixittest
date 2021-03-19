@@ -58,19 +58,21 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
     if (this.state.roomMetadata && this.state.roomMetadata !== prevState.roomMetadata) {
       this.findSeatAndJoin();
 
-      let arPlayerData = Object.entries(this.state.roomMetadata.players);
-      this.gameRoomFull = arPlayerData.filter(([key, value]) => !value.name).length === 0;
+      let arPlayerData = Object.entries(this.state.roomMetadata.players).map(([key, value]) => value);
+      this.gameRoomFull = arPlayerData.filter((value) => !value.name).length === 0;
+      const alreadyJoined = arPlayerData.find(p => {
+        return p.id === this.props.playerData?.playerID && p.name === this.props.nickname;
+      });
       if (this.gameRoomFull) {
-        window.setTimeout(()=>{
-          if(this.state.roomMetadata)
-          {
-            this.props.startGame(this.state.roomMetadata);
-          }else{
-            alert("There was an internal problem. Please try again.");
-            this.props.history.push("/");
-            return; 
-          }
-        },2000);
+        if(alreadyJoined){
+          this.delayedStart();
+        }else{
+          alert(
+            "This game started without you."
+          );
+          this.props.history.push("/");
+          return;
+        }
       }
     }
   }
@@ -146,6 +148,19 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
     if (!alreadyJoined && emptySeatID !== undefined && this.props.nickname && this.matchID) {
       this.join(emptySeatID);
     }
+  }
+
+  delayedStart(){
+    window.setTimeout(()=>{
+      if(this.state.roomMetadata)
+      {
+        this.props.startGame(this.state.roomMetadata);
+      }else{
+        alert("There was an internal problem. Please try again.");
+        this.props.history.push("/");
+        return; 
+      }
+    },2000);
   }
 
   render() {
