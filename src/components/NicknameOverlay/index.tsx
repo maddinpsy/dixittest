@@ -17,20 +17,14 @@ const NICKNAME_STORAGE_KEY = "DIXIT_NICKNAME"
 export class NicknameOverlay extends React.Component<{}, State> {
     constructor(props: {}) {
         super(props);
+        const savedNickname = localStorage.getItem(NICKNAME_STORAGE_KEY);
         this.state = {
-            nickname: '',
+            nickname: savedNickname || "",
             changeRequested: false
         };
         this.setNickname = this.setNickname.bind(this);
         this.onRequestChange = this.onRequestChange.bind(this);
         this.resetRequest = this.resetRequest.bind(this);
-    }
-
-    componentDidMount() {
-        const savedNickname = localStorage.getItem(NICKNAME_STORAGE_KEY);
-        if (savedNickname) {
-            this.setState({ nickname: savedNickname });
-        }
     }
 
     setNickname(newNickname: string) {

@@ -14,6 +14,7 @@ import { StoredPlayerData } from "App";
 
 interface GameLobbySetupBasicProps {
   nickname: string
+  requestChangeNickname :() => void
   lobbyClient: LobbyClient
   playerData?: StoredPlayerData
   storePlayerData:(activeRoomPlayer: StoredPlayerData)=>void
@@ -35,7 +36,10 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
 
   constructor(props: GameLobbySetupProps) {
     super(props);
-   
+    //force nickname
+    if(props.nickname.trim()===""){
+      props.requestChangeNickname();
+    }
     this.state = { roomMetadata: undefined }
     //get matchID from url
     this.matchID = props.match.params.id;

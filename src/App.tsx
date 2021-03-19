@@ -86,7 +86,7 @@ export class App extends React.Component<NicknameProps, AppState>
       roomPage = <div>Läuft...</div>
     } else {
       roomPage = (<GameLobbySetup
-        nickname={this.props.nickname}
+        {...this.props}
         lobbyClient={this.lobbyClient}
         storePlayerData={this.storePlayerData}
         playerData={this.state.playerData}
