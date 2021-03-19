@@ -9,24 +9,18 @@ import { LobbyLink } from "./LobbyLink";
 import { Server } from "boardgame.io";
 import { Dixit } from 'Game';
 import { LobbyClient } from "boardgame.io/client";
-
-const CREDENTIALS_STORAGE_KEY = "DIXIT_CLIENT_CREDENTIALS"
+import { StoredPlayerData } from "App";
 
 
 interface GameLobbySetupBasicProps {
   nickname: string
   lobbyClient: LobbyClient
-
-}
-interface StoredPlayerData {
-  playerID: number;
-  credential: string;
-  matchID: string;
+  playerData?: StoredPlayerData
+  storePlayerData:(activeRoomPlayer: StoredPlayerData)=>void;
 }
 
 interface GameLobbySetupState {
   roomMetadata?: Server.MatchData
-  activeRoomPlayer?: StoredPlayerData
 }
 
 type GameLobbySetupProps = GameLobbySetupBasicProps & RouteComponentProps<{ id: string }>
@@ -40,19 +34,12 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
 
   constructor(props: GameLobbySetupProps) {
     super(props);
-    //restore saved credentials
-    const encodedCredentials = localStorage.getItem(CREDENTIALS_STORAGE_KEY);
-    let storedCredentials: StoredPlayerData | undefined;
-    if (encodedCredentials) {
-      storedCredentials = JSON.parse(encodedCredentials)
-    }
-
-    this.state = { roomMetadata: undefined, activeRoomPlayer: storedCredentials }
+   
+    this.state = { roomMetadata: undefined }
     //get matchID from url
     this.matchID = props.match.params.id;
     this.loadRoomMetadata = this.loadRoomMetadata.bind(this);
     this.findSeatAndJoin = this.findSeatAndJoin.bind(this);
-    this.storeActiveRoomPlayer = this.storeActiveRoomPlayer.bind(this);
     this.join = this.join.bind(this);
   }
 
@@ -90,14 +77,6 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
     )
   }
 
-  storeActiveRoomPlayer(activeRoomPlayer: StoredPlayerData) {
-    localStorage.setItem(CREDENTIALS_STORAGE_KEY, JSON.stringify(activeRoomPlayer));
-
-    this.setState({
-      activeRoomPlayer: activeRoomPlayer
-    });
-  }
-
   join(playerID: number) {
     if (!Dixit.name) {
       throw new Error("IllegalState game name not set");
@@ -107,7 +86,7 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
     //on success: store credentions
     joinMatchPromise.then(
       (joinedRoom) => {
-        this.storeActiveRoomPlayer({
+        this.props.storePlayerData({
           playerID: playerID,
           credential: joinedRoom.playerCredentials,
           matchID: this.matchID
@@ -137,7 +116,7 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
 
     const emptySeatID = arPlayerData.find(p => !p.name)?.id;
     const alreadyJoined = arPlayerData.find(p => {
-      return p.id === this.state.activeRoomPlayer?.playerID && p.name === this.props.nickname;
+      return p.id === this.props.playerData?.playerID && p.name === this.props.nickname;
     });
 
     if (!alreadyJoined && emptySeatID !== undefined && this.props.nickname && this.matchID) {
