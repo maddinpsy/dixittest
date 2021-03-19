@@ -17,7 +17,7 @@ export const LobbyPage: React.FC<HTMLAttributes<HTMLDivElement>> = ({
 };
 
 export const SmallLogo = () => {
-  return <Logo size="small" className={style.smallLogo} />;
+  return  <a href="/"><Logo size="small" className={style.smallLogo} /></a>;
 };
 
 export const GithubLink = () => {
