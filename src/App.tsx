@@ -21,6 +21,7 @@ export interface StoredPlayerData {
 }
 interface AppState {
   matchID?: string
+  isRunning: boolean
   roomMetadata?: Server.MatchData
   playerData?: StoredPlayerData
 }
@@ -41,10 +42,11 @@ export class App extends React.Component<NicknameProps, AppState>
       storedCredentials = JSON.parse(encodedCredentials)
     }
 
-    this.state = { roomMetadata: undefined, playerData: storedCredentials }
+    this.state = { playerData: storedCredentials, isRunning: false }
 
     this.newGame = this.newGame.bind(this);
     this.storePlayerData = this.storePlayerData.bind(this);
+    this.startGame = this.startGame.bind(this);
   }
 
   newGame(playerCount: number) {
@@ -64,9 +66,29 @@ export class App extends React.Component<NicknameProps, AppState>
     });
   }
 
+  startGame(roomMetadata: Server.MatchData) {
+    this.setState({
+      isRunning: true,
+      roomMetadata: roomMetadata
+    })
+  }
+
 
   render() {
     let matchID = this.state.matchID;
+    
+    let roomPage: JSX.Element;
+    if (this.state.isRunning) {
+      roomPage = <div>Läuft...</div>
+    } else {
+      roomPage = (<GameLobbySetup
+        nickname={this.props.nickname}
+        lobbyClient={this.lobbyClient}
+        storePlayerData={this.storePlayerData}
+        playerData={this.state.playerData}
+        startGame={this.startGame}
+      />);
+    }
     return (
       <div className="App" >
         <BrowserRouter>
@@ -80,13 +102,7 @@ export class App extends React.Component<NicknameProps, AppState>
             </Route>
 
             <Route exact path="/rooms/:id">
-              <GameLobbySetup
-                nickname={this.props.nickname}
-                lobbyClient={this.lobbyClient}
-                storePlayerData={this.storePlayerData}
-                playerData={this.state.playerData}
-              >
-              </GameLobbySetup>/>
+              {roomPage}
             </Route>
 
             <Route>

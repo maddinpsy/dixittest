@@ -16,7 +16,8 @@ interface GameLobbySetupBasicProps {
   nickname: string
   lobbyClient: LobbyClient
   playerData?: StoredPlayerData
-  storePlayerData:(activeRoomPlayer: StoredPlayerData)=>void;
+  storePlayerData:(activeRoomPlayer: StoredPlayerData)=>void
+  startGame:(metadata:Server.MatchData)=>void
 }
 
 interface GameLobbySetupState {
@@ -59,7 +60,16 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
 
       let arPlayerData = Object.entries(this.state.roomMetadata.players);
       this.gameRoomFull = arPlayerData.filter(([key, value]) => !value.name).length === 0;
-      //if (this.gameRoomFull) this.props.startGame();
+      if (this.gameRoomFull) {
+        window.setTimeout(()=>{
+          if(this.state.roomMetadata)
+          {
+            this.props.startGame(this.state.roomMetadata);
+          }else{
+           //..TODO Error hanbdling 
+          }
+        },2000);
+      }
     }
   }
 
