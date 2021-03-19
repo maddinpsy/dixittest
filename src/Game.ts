@@ -24,7 +24,7 @@ export interface DixitGameState {
     }
     playerInfo:
     {
-        [key: string]: { name: string, cardCount: number }
+        [key: string]: { cardCount: number}
     }
     phrase: string;
     playedCards: PlayedCard[]
@@ -47,7 +47,7 @@ export function setupGame(ctx: Ctx) {
     //add number of players
     for (let i = 0; i < ctx.numPlayers; i++) {
         G.players[String(i)] = { hand: [] };
-        G.playerInfo[String(i)] = { cardCount: 0, name: 'test' };
+        G.playerInfo[String(i)] = { cardCount: 0};
     }
     return G;
 }

@@ -13,9 +13,9 @@ function Opponent(props: { name: string, cards: number }) {
     )
 }
 
-function OpponentList(props: { opponents: { name: string, cardCount: number }[] }) {
+function OpponentList(props: { opponents: FullPlayerInfo }) {
     const listOp = props.opponents.map((op, idx) => (
-        <Opponent name={op.name} cards={op.cardCount} key={idx} />
+        <Opponent name={op.nickname} cards={op.cardCount} key={idx} />
     ));
     return (
         <div className="opponentList">
@@ -126,15 +126,16 @@ function CardsToChoose(props: { cards: string[], handler: (src: string) => void 
 }
 
 
-class CardsFullInfo extends React.Component<{playedCards:PlayedCard[], playerInfo:{[key: string]: { name: string, cardCount: number }}}> {
-    mapToName(playerID?:string):string{
-        if(playerID===undefined || this.props.playerInfo[playerID] == undefined){
+class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], playerInfo: FullPlayerInfo }> {
+    mapToName(playerID?: string): string {
+        const name = this.props.playerInfo.find(p => p.playerID === playerID)?.nickname;
+        if (name === undefined) {
             return "...";
         }
-        return this.props.playerInfo[playerID].name;
+        return name;
     }
-    voters(votedBy:string[]){
-        if(votedBy.length===0){
+    voters(votedBy: string[]) {
+        if (votedBy.length === 0) {
             return (<div>not voted</div>);
         }
         const list = votedBy.map((value, idx) => (
@@ -144,7 +145,7 @@ class CardsFullInfo extends React.Component<{playedCards:PlayedCard[], playerInf
             </span>
         ));
         return (<div>Voted by: {list}</div>);
-    } 
+    }
     render() {
         const list = this.props.playedCards.map((value, idx) => (
             <div key={idx} className="container">
@@ -155,30 +156,31 @@ class CardsFullInfo extends React.Component<{playedCards:PlayedCard[], playerInf
         ))
         return (
             <div className="cards">
-            {list}
-        </div>
+                {list}
+            </div>
         )
     }
 }
 
 class StageWaiting extends React.Component<StageProps> {
-    playedCards(){
+    playedCards() {
         const playerIDs = Object.keys(this.props.public.players);
-        if(playerIDs.length>0 && playerIDs[0]!=="null"){
+        if (playerIDs.length > 0 && playerIDs[0] !== "null") {
             const playedCards = this.props.public.players[playerIDs[0]].playedCards;
-            if(playedCards!==undefined){
+            if (playedCards !== undefined) {
                 //info about played cards is available
-                return(<CardsFullInfo playedCards={playedCards} playerInfo={this.props.public.playerInfo} />)
+                return (<CardsFullInfo playedCards={playedCards} playerInfo={this.props.playerInfos} />)
             }
         }
         //show backsides only
-        return(<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />)
+        return (<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />)
     }
 
     render() {
+        const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className="board waiting">
-                <OpponentList opponents={this.props.others} />
+                <OpponentList opponents={others} />
                 {this.playedCards()}
                 <WatingCommand />
                 <Cards cards={this.props.myhand} />
@@ -188,10 +190,11 @@ class StageWaiting extends React.Component<StageProps> {
 }
 
 interface StageProps {
-    myhand: string[],
-    others: { name: string, cardCount: number }[],
-    public: DixitGameState,
-    storyTellerName : string,
+    myhand: string[]
+    playerInfos: FullPlayerInfo
+    playerID: string
+    public: DixitGameState
+    storyTellerName: string
     onChooseStory?: (phrase: string, image: string) => void
     onChooseCard?: (image: string) => void
     onEndButtonClicked?: () => void
@@ -219,9 +222,10 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
     }
 
     render() {
+        const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className="board storytelling">
-                <OpponentList opponents={this.props.others} />
+                <OpponentList opponents={others} />
                 <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
                 <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
                 <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
@@ -246,9 +250,10 @@ class StageAddOwnCard extends React.Component<StageProps>
     }
 
     render() {
+        const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className="board addowncard">
-                <OpponentList opponents={this.props.others} />
+                <OpponentList opponents={others} />
                 <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
                 <ChoseCommand phrase={this.props.public.phrase} />
                 <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
@@ -272,12 +277,12 @@ class StageVoteStory extends React.Component<StageProps>
     }
 
     render() {
-        
+        const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className="board votestory">
-                <OpponentList opponents={this.props.others} />
+                <OpponentList opponents={others} />
                 <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />
-                <CardsToChoose cards={this.props.public.playedCards.map(x=>x.str)} handler={this.cardSelected} />
+                <CardsToChoose cards={this.props.public.playedCards.map(x => x.str)} handler={this.cardSelected} />
                 <Cards cards={this.props.myhand} />
             </div>
         )
@@ -291,43 +296,63 @@ class StageFinish extends React.Component<StageProps>
     }
 
     render() {
+        const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className="board finish">
-                <OpponentList opponents={this.props.others} />
-                <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.public.playerInfo} />
+                <OpponentList opponents={others} />
+                <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.playerInfos} />
                 <button onClick={this.props.onEndButtonClicked}>End Round</button>
                 <Cards cards={this.props.myhand} />
             </div>
         )
     }
 }
+export type FullPlayerInfo = { playerID: string, nickname: string, cardCount: number, points: number }[];
 
 export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any> {
     render() {
-        const opponents = [
-            { name: "Mark", cards: 6 },
-            { name: "Lisa", cards: 6 },
-            { name: "Hugo", cards: 6 }
-        ]
-
-        const playerID = this.props.playerID || 'spectating';
+        if (!this.props.matchData) {
+            return (<div>"this.props.matchData is not defined."</div>);
+        }
+        if (!this.props.playerID) {
+            return (<div>"this.props.playerID is not defined."</div>);
+        }
         if (!this.props.ctx.activePlayers) {
             return (<div>Error, this.props.ctx.activePlayers not defined</div>)
         }
+        //mapping from id to name comes from this.props.matchData  
+        //G stores only player ids (as string), but no names
+        let playerNames: { playerID: string, nickname: string }[] = [];
+        playerNames = this.props.matchData.reduce((map, obj) => {
+            map.push({ playerID: String(obj.id), nickname: obj.name || "NoName" })
+            return map
+        }, playerNames);
+
+        //componentes take merged players object, with both names, and id
+        let fullPlayerInfo: { playerID: string, nickname: string, cardCount: number, points: number }[] = [];
+        fullPlayerInfo = playerNames.map((lobbyPlayer) => {
+            let gamePlayer = this.props.G.playerInfo[lobbyPlayer.playerID];
+            return { playerID: lobbyPlayer.playerID, nickname: lobbyPlayer.nickname, cardCount: gamePlayer.cardCount, points: gamePlayer.points }
+        });
+
+        const playerID = this.props.playerID;
+
         const ownCards = this.props.G.players[playerID]?.hand || [];
-        const others = Object.keys(this.props.G.playerInfo).filter(x => (x !== this.props.playerID)).map(x => this.props.G.playerInfo[x]);
-        const storyteller = this.props.G.playerInfo[this.props.ctx.currentPlayer].name;
+        const storyteller = playerNames.find((x) => x.playerID == this.props.ctx.currentPlayer)?.nickname;
+        if (!storyteller) {
+            return (<div>Error, this.props.ctx.currentPlayer has no name defined</div>)
+        }
         switch (this.props.ctx.activePlayers[playerID]) {
             case undefined:
-                return (<StageWaiting myhand={ownCards} others={others} storyTellerName={storyteller} public={this.props.G} />);
+                return (<StageWaiting myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} />);
             case 'Storytelling':
-                return (<StageStorytelling myhand={ownCards} others={others}  storyTellerName={storyteller} public={this.props.G} onChooseStory={this.props.moves.SelectStory} />);
+                return (<StageStorytelling myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onChooseStory={this.props.moves.SelectStory} />);
             case 'AddOwnCard':
-                return (<StageAddOwnCard myhand={ownCards} others={others} storyTellerName={storyteller} public={this.props.G} onChooseCard={this.props.moves.SelectCard} />);
+                return (<StageAddOwnCard myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onChooseCard={this.props.moves.SelectCard} />);
             case 'VoteStory':
-                return (<StageVoteStory myhand={ownCards} others={others}  storyTellerName={storyteller} public={this.props.G} onChooseCard={this.props.moves.VoteCard}/>);
+                return (<StageVoteStory myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onChooseCard={this.props.moves.VoteCard} />);
             case 'Finish':
-                return (<StageFinish myhand={ownCards} others={others} storyTellerName={storyteller} public={this.props.G} onEndButtonClicked={this.props.moves.EndTurn} />);
+                return (<StageFinish myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onEndButtonClicked={this.props.moves.EndTurn} />);
         }
     }
 }
