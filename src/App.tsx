@@ -1,18 +1,24 @@
 import React from 'react';
-import './App.css';
-import { Dixit } from './Game';
 import {
   BrowserRouter,
   Redirect,
   Route,
   Switch
 } from "react-router-dom";
-import { CreateGame } from 'components/CreateGame';
+
 import { LobbyClient } from 'boardgame.io/client';
+import { SocketIO } from "boardgame.io/multiplayer";
+import { Server } from "boardgame.io";
+import { Client } from "boardgame.io/react";
+
+import './App.css';
+import { Dixit } from './Game';
+import { DixitBoard } from './Board';
+
+import { CreateGame } from 'components/CreateGame';
 import { NicknameProps } from 'components/NicknameOverlay';
 import { GameLobbySetup } from "components/Lobby";
 import { Welcome } from "components/Welcome";
-import { Server } from "boardgame.io";
 
 export interface StoredPlayerData {
   playerID: number;
@@ -83,7 +89,17 @@ export class App extends React.Component<NicknameProps, AppState>
 
     let roomPage: JSX.Element;
     if (this.state.isRunning) {
-      roomPage = <div>Läuft...</div>
+      const GameClient = Client({
+        game: Dixit,
+        board: DixitBoard,
+        multiplayer: SocketIO({ server: "127.0.0.1:8000" }),
+      });
+
+      roomPage = <GameClient
+        matchID={this.state.playerData?.matchID}
+        playerID={String(this.state.playerData?.playerID)}
+        credentials={this.state.playerData?.credential}
+      />
     } else {
       roomPage = (<GameLobbySetup
         {...this.props}
