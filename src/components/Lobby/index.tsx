@@ -66,7 +66,9 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
           {
             this.props.startGame(this.state.roomMetadata);
           }else{
-           //..TODO Error hanbdling 
+            alert("There was an internal problem. Please try again.");
+            this.props.history.push("/");
+            return; 
           }
         },2000);
       }
@@ -84,7 +86,14 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
       (matchData) => {
         this.setState({ roomMetadata: matchData })
       }
-    )
+    ).catch((e)=>{
+      alert(
+        "There was a problem. Make sure you have the right url and try again."
+      );
+      console.log("Error in loadRoomMetadata: "+e);
+      this.props.history.push("/");
+      return;
+    });
   }
 
   join(playerID: number) {
@@ -106,7 +115,12 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
     //log error
     joinMatchPromise.catch(
       (error) => {
+        alert(
+          "There was a problem. Make sure you have the right url and try again."
+        );
         console.log("Error joining room:" + error);
+        this.props.history.push("/");
+        return;
       }
     );
   }

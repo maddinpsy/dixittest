@@ -55,7 +55,11 @@ export class App extends React.Component<NicknameProps, AppState>
     }
     this.lobbyClient.createMatch(Dixit.name, { numPlayers: playerCount })
       .then((x) => { this.setState({ matchID: x.matchID }) })
-      .catch((reason) => console.log("Error creating new Game:" + reason));
+      .catch((reason) => {
+        alert("There was a problem creating the match. Please try again.");
+        console.log("Error creating new Game:" + reason)
+        return;
+      });
   }
 
   storePlayerData(activeRoomPlayer: StoredPlayerData) {
@@ -76,7 +80,7 @@ export class App extends React.Component<NicknameProps, AppState>
 
   render() {
     let matchID = this.state.matchID;
-    
+
     let roomPage: JSX.Element;
     if (this.state.isRunning) {
       roomPage = <div>Läuft...</div>
