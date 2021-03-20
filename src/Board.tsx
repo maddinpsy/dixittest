@@ -1,5 +1,6 @@
 import * as React from "react";
 import backside from './backside.png';
+import imageLoader from 'images';
 
 import { BoardProps } from "boardgame.io/react";
 import { DixitGameState, PlayedCard } from "./Game";
@@ -24,10 +25,10 @@ function OpponentList(props: { opponents: FullPlayerInfo }) {
     )
 }
 
-function Cards(props: { cards: string[] }) {
+function Cards(props: { cards: number[] }) {
     const list = props.cards.map((value, idx) => (
         <div key={idx} className="container">
-            <img src={value} alt={value} />
+            <img src={imageLoader()[value]} alt={"CardID:" + value} />
         </div>
     ))
     return (
@@ -110,10 +111,10 @@ function WatingCommand() {
     )
 }
 
-function CardsToChoose(props: { cards: string[], handler: (src: string) => void }) {
+function CardsToChoose(props: { cards: number[], handler: (src: number) => void }) {
     const list = props.cards.map((value, idx) => (
         <div key={idx} className="container">
-            <img src={value} alt={value} />
+            <img src={imageLoader()[value]} alt={"CardID:" + value} />
             <br />
             <button onClick={() => props.handler(value)}>Choose this</button>
         </div>
@@ -150,7 +151,7 @@ class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], playerI
         const list = this.props.playedCards.map((value, idx) => (
             <div key={idx} className="container">
                 <div>Played by: {this.mapToName(value.playedBy)}</div>
-                <img src={value.str} alt={value.str} />
+                <img src={imageLoader()[value.cardID]} alt={"CardID:" + value.cardID} />
                 {this.voters(value.votedBy)}
             </div>
         ))
@@ -190,13 +191,13 @@ class StageWaiting extends React.Component<StageProps> {
 }
 
 interface StageProps {
-    myhand: string[]
+    myhand: number[]
     playerInfos: FullPlayerInfo
     playerID: string
     public: DixitGameState
     storyTellerName: string
-    onChooseStory?: (phrase: string, image: string) => void
-    onChooseCard?: (image: string) => void
+    onChooseStory?: (phrase: string, cardID: number) => void
+    onChooseCard?: (cardID: number) => void
     onEndButtonClicked?: () => void
 }
 
@@ -213,7 +214,7 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
         this.setState({ phrase: phrase });
     }
 
-    cardSelected(src: string) {
+    cardSelected(src: number) {
         //TODO show error if phrase is empty
         if (!this.props.onChooseStory) {
             throw "this.props.onChooseStory Must be defined";
@@ -242,11 +243,11 @@ class StageAddOwnCard extends React.Component<StageProps>
         this.cardSelected = this.cardSelected.bind(this);
     }
 
-    cardSelected(src: string) {
+    cardSelected(cardID: number) {
         if (!this.props.onChooseCard) {
             throw "this.props.onChooseCard Must be defined";
         }
-        this.props.onChooseCard(src);
+        this.props.onChooseCard(cardID);
     }
 
     render() {
@@ -269,11 +270,11 @@ class StageVoteStory extends React.Component<StageProps>
         this.cardSelected = this.cardSelected.bind(this);
     }
 
-    cardSelected(src: string) {
+    cardSelected(cardID: number) {
         if (!this.props.onChooseCard) {
             throw "this.props.onChooseCard Must be defined";
         }
-        this.props.onChooseCard(src);
+        this.props.onChooseCard(cardID);
     }
 
     render() {
@@ -282,7 +283,7 @@ class StageVoteStory extends React.Component<StageProps>
             <div className="board votestory">
                 <OpponentList opponents={others} />
                 <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />
-                <CardsToChoose cards={this.props.public.playedCards.map(x => x.str)} handler={this.cardSelected} />
+                <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID)} handler={this.cardSelected} />
                 <Cards cards={this.props.myhand} />
             </div>
         )
@@ -329,10 +330,10 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
         }, playerNames);
 
         //componentes take merged players object, with both names, and id
-        let fullPlayerInfo: { playerID: string, nickname: string, cardCount: number, points: number }[] = [];
+        let fullPlayerInfo: FullPlayerInfo = [];
         fullPlayerInfo = playerNames.map((lobbyPlayer) => {
             let gamePlayer = this.props.G.playerInfo[lobbyPlayer.playerID];
-            return { playerID: lobbyPlayer.playerID, nickname: lobbyPlayer.nickname, cardCount: gamePlayer.cardCount, points: gamePlayer.points }
+            return { playerID: lobbyPlayer.playerID, nickname: lobbyPlayer.nickname, cardCount: gamePlayer.cardCount, points: 0 }
         });
 
         const playerID = this.props.playerID;

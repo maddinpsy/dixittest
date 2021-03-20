@@ -1,10 +1,9 @@
 
 import { Ctx, Game, PlayerID } from 'boardgame.io';
 import { INVALID_MOVE, PlayerView } from 'boardgame.io/core';
-import imageLoader from './images';
 
 export interface PlayedCard {
-    str: string,
+    cardID: number,
     playedBy?: PlayerID,
     votedBy: PlayerID[]
 }
@@ -12,13 +11,13 @@ export interface PlayedCard {
 export interface DixitGameState {
     secret:
     {
-        drawPile: string[],
+        drawPile: number[],
         playedCards: PlayedCard[]
     },
     players:
     {
         [key: string]: {
-            hand: string[]
+            hand: number[]
             playedCards?: PlayedCard[]
         }
     }
@@ -34,7 +33,7 @@ export function setupGame(ctx: Ctx) {
     let G: DixitGameState = {
         secret:
         {
-            drawPile: imageLoader(),
+            drawPile: Array.from(Array(59).keys()),
             playedCards: []
         },
         phrase: '',
@@ -94,7 +93,7 @@ export function endPhase(G: DixitGameState, ctx: Ctx) {
 }
 
 //all moves
-export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: string) {
+export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: number) {
     //if no player is give, it is an invalid move
     if (ctx.playerID === undefined) {
         return INVALID_MOVE;
@@ -113,7 +112,7 @@ export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: 
     //save as choosen card and phrase
     G.phrase = phrase;
     G.secret.playedCards.push({
-        str: image,
+        cardID: image,
         playedBy: ctx.playerID,
         votedBy: []
     });
@@ -127,7 +126,7 @@ export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: 
     });
 }
 
-export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
+export function SelectCard(G: DixitGameState, ctx: Ctx, image: number) {
     //if no player is give, it is an invalid move
     if (!ctx.playerID) {
         return INVALID_MOVE;
@@ -145,7 +144,7 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
 
     //save card
     G.secret.playedCards.push({
-        str: image,
+        cardID: image,
         playedBy: ctx.playerID,
         votedBy: []
     });
@@ -167,7 +166,7 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
         if (!G.playedCards)
             G.playedCards = [];
         for (let i = 0; i < G.secret.playedCards.length; i++) {
-            G.playedCards.push({ str: G.secret.playedCards[i].str, votedBy: [] });
+            G.playedCards.push({ cardID: G.secret.playedCards[i].cardID, votedBy: [] });
         }
 
         //goto next stage
@@ -177,7 +176,7 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: string) {
     }
 }
 
-export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
+export function VoteCard(G: DixitGameState, ctx: Ctx, image: number) {
     //if no player is give, it is an invalid move
     if (!ctx.playerID) {
         return INVALID_MOVE;
@@ -187,7 +186,7 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: string) {
         return INVALID_MOVE;
     }
     //if not on voting, it is an invalid move
-    const idx: number = G.secret.playedCards.map(c => c.str).indexOf(image);
+    const idx: number = G.secret.playedCards.map(c => c.cardID).indexOf(image);
     if (idx === -1) {
         return INVALID_MOVE;
     }
