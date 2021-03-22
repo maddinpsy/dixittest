@@ -12,6 +12,7 @@ import { Server } from "boardgame.io";
 import { Client } from "boardgame.io/react";
 
 import './App.css';
+import { origin } from "config";
 import { Dixit } from './Game';
 import { DixitBoard } from './Board';
 
@@ -19,6 +20,7 @@ import { CreateGame } from 'components/CreateGame';
 import { NicknameProps } from 'components/NicknameOverlay';
 import { GameLobbySetup } from "components/Lobby";
 import { Welcome } from "components/Welcome";
+
 
 export interface StoredPlayerData {
   playerID: number;
@@ -39,7 +41,7 @@ export class App extends React.Component<NicknameProps, AppState>
   lobbyClient: LobbyClient;
   constructor(props: NicknameProps) {
     super(props);
-    this.lobbyClient = new LobbyClient({ server: 'http://localhost:8000' });
+    this.lobbyClient = new LobbyClient({ server: origin });
 
     //restore saved credentials
     const encodedCredentials = localStorage.getItem(CREDENTIALS_STORAGE_KEY);
@@ -92,7 +94,7 @@ export class App extends React.Component<NicknameProps, AppState>
       const GameClient = Client({
         game: Dixit,
         board: DixitBoard,
-        multiplayer: SocketIO({ server: "127.0.0.1:8000" }),
+        multiplayer: SocketIO({ server: origin }),
       });
 
       roomPage = <GameClient
