@@ -22,6 +22,7 @@
   font-size: 20px;
   font-weight: 600;
   color: $c-white;
+  margin: 10px;
   cursor: pointer;
 
   &--orange {
@@ -41,7 +42,7 @@
   }
 
   &--size-small {
-    padding: 12px 24px;
+    padding: 8px 24px;
     font-size: 16px;
   }
 

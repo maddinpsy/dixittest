@@ -3,6 +3,7 @@ import * as React from "react";
 import {PlayedCard } from "Game";
 import imageLoader from 'images';
 import {FullPlayerInfo} from "components/Board"
+import {Button} from "components/Button"
 import style from "./style.module.scss";
 
 
@@ -25,7 +26,7 @@ export function CardsToChoose(props: { cards: number[], handler: (src: number) =
         <div key={idx} className={style.Card__container}>
             <img src={imageLoader()[value]} alt={"CardID:" + value} className={style.Card__image}/>
             <br />
-            <button onClick={() => props.handler(value)} className={style.Card__button}>Choose this</button>
+            <Button onClick={() => props.handler(value)} theme="orange" size="small" >Choose this</Button>
         </div>
     ))
     return (

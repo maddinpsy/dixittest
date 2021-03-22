@@ -10,6 +10,7 @@ import { OpponentList } from "./Opponent";
 import { CardPile } from "./CardPile";
 import { Cards,CardsFullInfo,CardsToChoose } from "./Cards";
 import { ChoseCommand,VoteCommand,WatingCommand, StoryTellingCommand} from "./Command";
+import { Button} from "components/Button";
 
 
 
@@ -156,7 +157,7 @@ class StageFinish extends React.Component<StageProps>
             <div className={classNames(style.Board__board,style.Board__finish)}>
                 <OpponentList opponents={others} />
                 <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.playerInfos} />
-                <button onClick={this.props.onEndButtonClicked} className={style.Board__cardsButton}>End Round</button>
+                <Button onClick={this.props.onEndButtonClicked}>End Round</Button>
                 <Cards cards={this.props.myhand} />
             </div>
         )
