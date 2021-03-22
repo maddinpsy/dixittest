@@ -1,0 +1,19 @@
+@import "~styles/shared";
+
+.Command {
+  &__command {
+    text-align: center;
+    font-size: x-large;
+  }
+
+  &__commandInput {
+    background-color: #c58851;
+    border: none;
+    height: 30px;
+    text-align: center;
+    font-size: x-large;
+    border-radius: 4px;
+
+    margin-bottom: 20px;
+  }
+}

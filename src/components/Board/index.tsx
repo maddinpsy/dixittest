@@ -1,168 +1,31 @@
 import * as React from "react";
 import backside from 'img/backside.png';
-import imageLoader from 'images';
 
 import { BoardProps } from "boardgame.io/react";
-import { DixitGameState, PlayedCard } from "../../Game";
+import { DixitGameState } from "Game";
 import classNames from "classnames";
 import style from "./style.module.scss";
 
-function Opponent(props: { name: string, cards: number }) {
-    return (
-        <div className={style.Board__opponent}>
-            <CardPile cards={Array<string>(props.cards).fill(backside)} />
-            <h1>{props.name}</h1>
-        </div>
-    )
+import { OpponentList } from "./Opponent";
+import { CardPile } from "./CardPile";
+import { Cards,CardsFullInfo,CardsToChoose } from "./Cards";
+import { ChoseCommand,VoteCommand,WatingCommand, StoryTellingCommand} from "./Command";
+
+
+
+export type FullPlayerInfo = { playerID: string, nickname: string, cardCount: number, points: number }[];
+
+interface StageProps {
+    myhand: number[]
+    playerInfos: FullPlayerInfo
+    playerID: string
+    public: DixitGameState
+    storyTellerName: string
+    onChooseStory?: (phrase: string, cardID: number) => void
+    onChooseCard?: (cardID: number) => void
+    onEndButtonClicked?: () => void
 }
 
-function OpponentList(props: { opponents: FullPlayerInfo }) {
-    const listOp = props.opponents.map((op, idx) => (
-        <Opponent name={op.nickname} cards={op.cardCount} key={idx} />
-    ));
-    return (
-        <div className={style.Board__opponentList}>
-            {listOp}
-        </div>
-    )
-}
-
-function Cards(props: { cards: number[] }) {
-    const list = props.cards.map((value, idx) => (
-        <div key={idx} className={style.Board__cardsContainer}>
-            <img src={imageLoader()[value]} alt={"CardID:" + value} className={style.Board__cardsImg}/>
-        </div>
-    ))
-    return (
-        <div className={style.Board__cards}>
-            {list}
-        </div>
-    )
-}
-
-function CardPile(props: { cards: string[] }) {
-    const list = props.cards.map((value, idx) => (
-        <img src={value} alt={value} key={idx} className={style.Board__cardpileImg} style={
-            {
-                transform: 'rotate(' + ((idx - props.cards.length / 2) * -5) + 'deg)',
-            }
-        } />
-    ))
-    return (
-        <div className={style.Board__cardpile}>
-            {list}
-        </div>
-    )
-}
-
-class StoryTellingCommand extends React.Component<{ phrase: string, onChange: (phrase: string) => void }> {
-    onChange = (e: React.FormEvent<HTMLInputElement>): void => {
-        this.props.onChange(e.currentTarget.value);
-    };
-    render() {
-        return (
-            <div className={style.Board__command}>
-                <div>Choose a pharse:</div>
-                <input type="text" value={this.props.phrase} onChange={this.onChange} className={style.Board__commandInput}/>
-                <div>And select a card:</div>
-            </div>
-        );
-    }
-}
-
-
-function Dialog(props: { message: string }) {
-    // onClick={/*close dilog*/}
-    return (
-        <div className="dialog">
-            {props.message}
-            <input type="button" value="OK" className={style.Borad__cardsButton}/>
-        </div>
-    )
-}
-
-function Error() {
-    return (
-        <Dialog message="Plaease enter a phrase first." />
-    )
-}
-
-function ChoseCommand(props: { phrase: string }) {
-    return (
-        <div className={style.Board__command}>
-            <div>Select a card matching the pharse <i>{props.phrase}</i></div>
-        </div>
-    )
-}
-
-function VoteCommand(props: { player: string, phrase: string }) {
-    return (
-        <div className={style.Board__command}>
-            <div>{props.player} chose the pharse: {props.phrase}</div>
-            <div>Select the card he played:</div>
-        </div>
-    )
-}
-
-function WatingCommand() {
-    return (
-        <div className={style.Board__command}>
-            <div>Waiting for other players</div>
-        </div>
-    )
-}
-
-function CardsToChoose(props: { cards: number[], handler: (src: number) => void }) {
-    const list = props.cards.map((value, idx) => (
-        <div key={idx} className={style.Board__cardsContainer}>
-            <img src={imageLoader()[value]} alt={"CardID:" + value} className={style.Board__cardsImg}/>
-            <br />
-            <button onClick={() => props.handler(value)} className={style.Board__cardsButton}>Choose this</button>
-        </div>
-    ))
-    return (
-        <div className={style.Board__cards}>
-            {list}
-        </div>
-    )
-}
-
-
-class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], playerInfo: FullPlayerInfo }> {
-    mapToName(playerID?: string): string {
-        const name = this.props.playerInfo.find(p => p.playerID === playerID)?.nickname;
-        if (name === undefined) {
-            return "...";
-        }
-        return name;
-    }
-    voters(votedBy: string[]) {
-        if (votedBy.length === 0) {
-            return (<div>not voted</div>);
-        }
-        const list = votedBy.map((value, idx) => (
-            <span key={idx}>
-                {idx > 0 && ","}
-                {this.mapToName(value)}
-            </span>
-        ));
-        return (<div>Voted by: {list}</div>);
-    }
-    render() {
-        const list = this.props.playedCards.map((value, idx) => (
-            <div key={idx} className={style.Board__cardsContainer}>
-                <div>Played by: {this.mapToName(value.playedBy)}</div>
-                <img src={imageLoader()[value.cardID]} alt={"CardID:" + value.cardID} className={style.Board__cardsImg} />
-                {this.voters(value.votedBy)}
-            </div>
-        ))
-        return (
-            <div className={style.Board__cards}>
-                {list}
-            </div>
-        )
-    }
-}
 
 class StageWaiting extends React.Component<StageProps> {
     playedCards() {
@@ -191,16 +54,6 @@ class StageWaiting extends React.Component<StageProps> {
     }
 }
 
-interface StageProps {
-    myhand: number[]
-    playerInfos: FullPlayerInfo
-    playerID: string
-    public: DixitGameState
-    storyTellerName: string
-    onChooseStory?: (phrase: string, cardID: number) => void
-    onChooseCard?: (cardID: number) => void
-    onEndButtonClicked?: () => void
-}
 
 class StageStorytelling extends React.Component<StageProps, { phrase: string }>
 {
@@ -309,7 +162,6 @@ class StageFinish extends React.Component<StageProps>
         )
     }
 }
-export type FullPlayerInfo = { playerID: string, nickname: string, cardCount: number, points: number }[];
 
 export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any> {
     render() {

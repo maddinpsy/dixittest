@@ -14,7 +14,7 @@ import { Client } from "boardgame.io/react";
 import './App.css';
 import { origin } from "config";
 import { Dixit } from './Game';
-import { DixitBoard } from './components/Board/Board';
+import { DixitBoard } from './components/Board';
 
 import { CreateGame } from 'components/CreateGame';
 import { NicknameProps } from 'components/NicknameOverlay';

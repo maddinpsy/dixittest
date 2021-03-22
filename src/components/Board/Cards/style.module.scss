@@ -1,0 +1,38 @@
+@import "~styles/shared";
+
+.Card {
+  //--------
+  &__container {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    row-gap: 10px;
+    height: 100%;
+    width: 100%;
+    min-width: 200px;
+    transition: 300ms ease all;
+  }
+
+  &__list {
+    overflow-x: auto;
+    display: flex;
+  }
+
+  &__image {
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  &__button {
+    background-color: #c58851;
+    border: none;
+    height: 30px;
+    text-align: center;
+    font-size: large;
+    border-radius: 4px;
+
+    margin-top: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+}
