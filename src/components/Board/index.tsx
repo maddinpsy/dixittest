@@ -8,9 +8,9 @@ import style from "./style.module.scss";
 
 import { OpponentList } from "./Opponent";
 import { CardPile } from "./CardPile";
-import { Cards,CardsFullInfo,CardsToChoose } from "./Cards";
-import { ChoseCommand,VoteCommand,WatingCommand, StoryTellingCommand} from "./Command";
-import { Button} from "components/Button";
+import { Cards, CardsFullInfo, CardsToChoose } from "./Cards";
+import { ChoseCommand, VoteCommand, WatingCommand, StoryTellingCommand } from "./Command";
+import { Button } from "components/Button";
 
 
 
@@ -45,7 +45,7 @@ class StageWaiting extends React.Component<StageProps> {
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
-            <div className={classNames(style.Board__board,style.Board__waiting)}>
+            <div className={classNames(style.Board__board, style.Board__waiting)}>
                 <OpponentList opponents={others} />
                 {this.playedCards()}
                 <WatingCommand />
@@ -80,7 +80,7 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
-            <div className={classNames(style.Board__board,style.Board__storytelling)}>
+            <div className={classNames(style.Board__board, style.Board__storytelling)}>
                 <OpponentList opponents={others} />
                 <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
                 <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
@@ -108,7 +108,7 @@ class StageAddOwnCard extends React.Component<StageProps>
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
-            <div className={classNames(style.Board__board,style.Board__addowncard)}>
+            <div className={classNames(style.Board__board, style.Board__addowncard)}>
                 <OpponentList opponents={others} />
                 <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
                 <ChoseCommand phrase={this.props.public.phrase} />
@@ -135,7 +135,7 @@ class StageVoteStory extends React.Component<StageProps>
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
-            <div className={classNames(style.Board__board,style.Board__votestory)}>
+            <div className={classNames(style.Board__board, style.Board__votestory)}>
                 <OpponentList opponents={others} />
                 <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />
                 <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID)} handler={this.cardSelected} />
@@ -154,10 +154,10 @@ class StageFinish extends React.Component<StageProps>
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
-            <div className={classNames(style.Board__board,style.Board__finish)}>
+            <div className={classNames(style.Board__board, style.Board__finish)}>
                 <OpponentList opponents={others} />
                 <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.playerInfos} />
-                <Button onClick={this.props.onEndButtonClicked}>End Round</Button>
+                {this.props.onEndButtonClicked && <Button onClick={this.props.onEndButtonClicked}>End Round</Button>}
                 <Cards cards={this.props.myhand} />
             </div>
         )
@@ -199,15 +199,66 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
         }
         switch (this.props.ctx.activePlayers[playerID]) {
             case undefined:
-                return (<StageWaiting myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} />);
+                return (
+                    <StageWaiting
+                        myhand={ownCards}
+                        playerInfos={fullPlayerInfo}
+                        playerID={playerID}
+                        storyTellerName={storyteller}
+                        public={this.props.G}
+                    />
+                );
             case 'Storytelling':
-                return (<StageStorytelling myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onChooseStory={this.props.moves.SelectStory} />);
+                return (
+                    <StageStorytelling
+                        myhand={ownCards}
+                        playerInfos={fullPlayerInfo}
+                        playerID={playerID}
+                        storyTellerName={storyteller}
+                        public={this.props.G}
+                        onChooseStory={this.props.moves.SelectStory}
+                    />
+                );
             case 'AddOwnCard':
-                return (<StageAddOwnCard myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onChooseCard={this.props.moves.SelectCard} />);
+                return (
+                    <StageAddOwnCard
+                        myhand={ownCards}
+                        playerInfos={fullPlayerInfo}
+                        playerID={playerID}
+                        storyTellerName={storyteller}
+                        public={this.props.G}
+                        onChooseCard={this.props.moves.SelectCard}
+                    />
+                );
             case 'VoteStory':
-                return (<StageVoteStory myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onChooseCard={this.props.moves.VoteCard} />);
+                return (
+                    <StageVoteStory
+                        myhand={ownCards}
+                        playerInfos={fullPlayerInfo}
+                        playerID={playerID}
+                        storyTellerName={storyteller}
+                        public={this.props.G}
+                        onChooseCard={this.props.moves.VoteCard}
+                    />
+                );
             case 'Finish':
-                return (<StageFinish myhand={ownCards} playerInfos={fullPlayerInfo} playerID={playerID} storyTellerName={storyteller} public={this.props.G} onEndButtonClicked={this.props.moves.EndTurn} />);
+                let endTurnCallback;
+                if(playerID === this.props.ctx.currentPlayer){
+                    endTurnCallback = () => {
+                        if(this.props.moves.EndTurn)
+                            this.props.moves.EndTurn()
+                    }
+                }
+                return (
+                    <StageFinish
+                        myhand={ownCards}
+                        playerInfos={fullPlayerInfo}
+                        playerID={playerID}
+                        storyTellerName={storyteller}
+                        public={this.props.G}
+                        onEndButtonClicked={endTurnCallback}
+                    />
+                );
         }
     }
 }
