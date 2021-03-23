@@ -18,7 +18,7 @@ interface GameLobbySetupBasicProps {
   lobbyClient: LobbyClient
   playerData?: StoredPlayerData
   storePlayerData:(activeRoomPlayer: StoredPlayerData)=>void
-  startGame:(metadata:Server.MatchData)=>void
+  startGame:()=>void
 }
 
 interface GameLobbySetupState {
@@ -158,7 +158,7 @@ class GameLobbySetupRaw extends React.Component<GameLobbySetupProps, GameLobbySe
     window.setTimeout(()=>{
       if(this.state.roomMetadata)
       {
-        this.props.startGame(this.state.roomMetadata);
+        this.props.startGame();
       }else{
         alert("There was an internal problem. Please try again.");
         this.props.history.push("/");

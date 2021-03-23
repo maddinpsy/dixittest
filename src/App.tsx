@@ -30,7 +30,6 @@ export interface StoredPlayerData {
 interface AppState {
   matchID?: string
   isRunning: boolean
-  roomMetadata?: Server.MatchData
   playerData?: StoredPlayerData
 }
 const CREDENTIALS_STORAGE_KEY = "DIXIT_CLIENT_CREDENTIALS"
@@ -78,10 +77,9 @@ export class App extends React.Component<NicknameProps, AppState>
     });
   }
 
-  startGame(roomMetadata: Server.MatchData) {
+  startGame() {
     this.setState({
       isRunning: true,
-      roomMetadata: roomMetadata
     })
   }
 
