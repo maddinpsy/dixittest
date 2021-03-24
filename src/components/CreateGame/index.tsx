@@ -69,19 +69,24 @@ export class CreateGame extends React.Component<CreateGameProps> {
           <Trans>How many players do you want to play with?</Trans>
         </h3>
         <div className="CreateGame__options">
-          <CreateGameButton
+        <CreateGameButton
             theme="orange"
             playerCount={2}
             onClick={this.props.onCreateGameRoom}
           />
           <CreateGameButton
-            theme="yellow"
-            playerCount={3}
+            theme="orange"
+            playerCount={4}
             onClick={this.props.onCreateGameRoom}
           />
           <CreateGameButton
-            theme="blue"
-            playerCount={4}
+            theme="orange"
+            playerCount={5}
+            onClick={this.props.onCreateGameRoom}
+          />
+          <CreateGameButton
+            theme="orange"
+            playerCount={6}
             onClick={this.props.onCreateGameRoom}
           />
         </div>
