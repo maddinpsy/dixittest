@@ -15,7 +15,7 @@ export const Welcome = () => {
         One player is the storyteller and makes up a phrase for her handcards – the others choose a card from there hand and guess which picture was the storyteller's.
         </Trans>
       </p>
-      <ButtonLink to="/create" theme="yellow">
+      <ButtonLink to="/create" theme="orange">
         <Trans>Go!</Trans>
       </ButtonLink>
     </LobbyPage>

@@ -4,7 +4,7 @@
   background: $color;
   @include shadow($color: $color);
 
-  &:hover:not([disabled]) {
+  &:active:not([disabled]) {
     @include shadow($inset: true, $color: $color);
   }
 }
@@ -46,7 +46,7 @@
     font-size: 16px;
   }
 
-  &:not([disabled]):hover {
+  &:not([disabled]):active {
     transform: translate(2px, 2px);
   }
 
