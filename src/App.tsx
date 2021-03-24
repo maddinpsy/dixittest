@@ -12,7 +12,7 @@ import { Server } from "boardgame.io";
 import { Client } from "boardgame.io/react";
 
 import './App.css';
-import { origin } from "config";
+import { isProduction, SERVER_URL } from "config";
 import { Dixit } from './Game';
 import { DixitBoard } from './components/Board';
 
@@ -40,7 +40,7 @@ export class App extends React.Component<NicknameProps, AppState>
   lobbyClient: LobbyClient;
   constructor(props: NicknameProps) {
     super(props);
-    this.lobbyClient = new LobbyClient({ server: origin });
+    this.lobbyClient = new LobbyClient({ server: SERVER_URL });
 
     //restore saved credentials
     const encodedCredentials = localStorage.getItem(CREDENTIALS_STORAGE_KEY);
@@ -92,13 +92,14 @@ export class App extends React.Component<NicknameProps, AppState>
       const GameClient = Client({
         game: Dixit,
         board: DixitBoard,
-        multiplayer: SocketIO({ server: origin }),
+        multiplayer: SocketIO({ server: SERVER_URL }),
       });
 
       roomPage = <GameClient
         matchID={this.state.playerData?.matchID}
         playerID={String(this.state.playerData?.playerID)}
         credentials={this.state.playerData?.credential}
+        debug={!isProduction}
       />
     } else {
       roomPage = (<GameLobbySetup
