@@ -1,26 +1,39 @@
 @import "~styles/shared";
 
 .Card {
-  //--------
+  &__list {
+    /*align in parent*/
+    flex-shrink: 1;
+    flex-grow: 1;
+    flex-basis: 0px;
+
+    /*align children*/
+    display: flex;
+    /*justify-content: space-evenly; repleaced with auto margin*/
+    overflow-x: auto;
+  }
+
   &__container {
-    display: grid;
-    justify-items: center;
-    align-content: start;
-    row-gap: 10px;
+    /*align in parent*/
     height: 100%;
-    width: 100%;
-    min-width: 200px;
+    width: 0px;
+    margin: auto;
+
+    /*align children*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    white-space: nowrap;
+
     transition: 300ms ease all;
   }
 
-  &__list {
-    overflow-x: auto;
-    display: flex;
-  }
-
   &__image {
-    max-height: 100%;
-    max-width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    flex-shrink: 1;
+    flex-grow: 1;
+    flex-basis: auto;
+    object-fit: scale-down;
   }
-
 }

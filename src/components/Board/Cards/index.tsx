@@ -25,7 +25,6 @@ export function CardsToChoose(props: { cards: number[], handler: (src: number) =
     const list = props.cards.map((value, idx) => (
         <div key={idx} className={style.Card__container}>
             <img src={imageLoader()[value]} alt={"CardID:" + value} className={style.Card__image}/>
-            <br />
             <Button onClick={() => props.handler(value)} theme="orange" size="small" >Choose this</Button>
         </div>
     ))

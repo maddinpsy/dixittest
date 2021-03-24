@@ -23,7 +23,7 @@ export interface DixitGameState {
     }
     playerInfo:
     {
-        [key: string]: { cardCount: number}
+        [key: string]: { cardCount: number, score: number }
     }
     phrase: string;
     playedCards: PlayedCard[]
@@ -46,7 +46,7 @@ export function setupGame(ctx: Ctx) {
     //add number of players
     for (let i = 0; i < ctx.numPlayers; i++) {
         G.players[String(i)] = { hand: [] };
-        G.playerInfo[String(i)] = { cardCount: 0};
+        G.playerInfo[String(i)] = { cardCount: 0, score: 0 };
     }
     return G;
 }
@@ -176,6 +176,52 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: number) {
     }
 }
 
+export function Scoring(G: DixitGameState, ctx: Ctx) {
+    let storyTellersCard = G.playedCards.find(p => p.playedBy === ctx.currentPlayer);
+    if (!storyTellersCard) {
+        throw new Error("This is unpossible, the storytellers card is not published.")
+    }
+    //storyteller got no or all votes 
+    if (storyTellersCard.votedBy.length === 0 || storyTellersCard.votedBy.length === ctx.numPlayers - 1) {
+        Object.keys(G.playerInfo).forEach(p => {
+            //everbody gets 2 points, except story teller
+            if (p !== ctx.currentPlayer) {
+                G.playerInfo[p].score += 2;
+            }
+        });
+    } else {
+        //storyteller got at least one vote and not all
+        G.playerInfo[ctx.currentPlayer].score += 3;
+        //every one voting correct image gets 3 points
+        storyTellersCard.votedBy.forEach(p => {
+            G.playerInfo[p].score += 3;
+        })
+        //everyone, except story teller, receiving votes, gets one point per vote
+        G.playedCards
+            .filter(p => p.playedBy !== ctx.currentPlayer)
+            .forEach(p => {
+                if(!p.playedBy){
+                    throw new Error("This is unpossible, scoring cannot be done without playedBy info.")
+                }
+                G.playerInfo[p.playedBy].score += p.votedBy.length
+            });
+    }
+}
+
+export function GotoFinalState(G: DixitGameState, ctx: Ctx) {
+    //show voting
+    for (let i = 0; i < G.secret.playedCards.length; i++) {
+        G.playedCards[i].votedBy = G.secret.playedCards[i].votedBy;
+        G.playedCards[i].playedBy = G.secret.playedCards[i].playedBy;
+    }
+    Scoring(G, ctx);
+    //move to next stage
+    if (ctx.events?.setActivePlayers) ctx.events.setActivePlayers({
+        currentPlayer: { stage: 'Finish', moveLimit: 1 },
+        others: { stage: 'Finish', moveLimit: 0 },
+    });
+}
+
 export function VoteCard(G: DixitGameState, ctx: Ctx, image: number) {
     //if no player is give, it is an invalid move
     if (!ctx.playerID) {
@@ -202,16 +248,7 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: number) {
         }
     }
     if (allInWatingButMe) {
-        //show voting
-        for (let i = 0; i < G.secret.playedCards.length; i++) {
-            G.playedCards[i].votedBy = G.secret.playedCards[i].votedBy;
-            G.playedCards[i].playedBy = G.secret.playedCards[i].playedBy;
-        }
-        //move to next stage
-        if (ctx.events?.setActivePlayers) ctx.events.setActivePlayers({
-            currentPlayer: { stage: 'Finish', moveLimit: 1 },
-            others: { stage: 'Finish', moveLimit: 0 },
-        });
+        GotoFinalState(G, ctx);
     }
 }
 
@@ -224,7 +261,7 @@ export function EndTurn(G: DixitGameState, ctx: Ctx) {
 
 
 export const Dixit: Game<DixitGameState, Ctx> = {
-    name:"Dixit",
+    name: "Dixit",
     minPlayers: 3,
     maxPlayers: 6,
     playerView: PlayerView.STRIP_SECRETS,

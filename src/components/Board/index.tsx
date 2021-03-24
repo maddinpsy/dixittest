@@ -11,10 +11,11 @@ import { CardPile } from "./CardPile";
 import { Cards, CardsFullInfo, CardsToChoose } from "./Cards";
 import { ChoseCommand, VoteCommand, WatingCommand, StoryTellingCommand } from "./Command";
 import { Button } from "components/Button";
+import { ScoreBoard } from "components/Board/ScoreBoard";
 
 
 
-export type FullPlayerInfo = { playerID: string, nickname: string, cardCount: number, points: number }[];
+export type FullPlayerInfo = { playerID: string, nickname: string, cardCount: number, score: number }[];
 
 interface StageProps {
     myhand: number[]
@@ -47,9 +48,16 @@ class StageWaiting extends React.Component<StageProps> {
         return (
             <div className={classNames(style.Board__board, style.Board__waiting)}>
                 <OpponentList opponents={others} />
-                {this.playedCards()}
-                <WatingCommand />
-                <Cards cards={this.props.myhand} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <div className={style.Board__mainArea}>
+                    {this.playedCards()}
+                </div>
+                <div className={style.Board__commandArea}>
+                    <WatingCommand />
+                </div>
+                <div className={style.Board__ownCards}>
+                    <Cards cards={this.props.myhand} />
+                </div>
             </div>
         )
     }
@@ -82,9 +90,16 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
         return (
             <div className={classNames(style.Board__board, style.Board__storytelling)}>
                 <OpponentList opponents={others} />
-                <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
-                <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
-                <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <div className={style.Board__mainArea}>
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
+                </div>
+                <div className={style.Board__commandArea}>
+                    <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
+                </div>
+                <div className={style.Board__ownCards}>
+                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
+                </div>
             </div>
         )
     }
@@ -110,9 +125,16 @@ class StageAddOwnCard extends React.Component<StageProps>
         return (
             <div className={classNames(style.Board__board, style.Board__addowncard)}>
                 <OpponentList opponents={others} />
-                <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
-                <ChoseCommand phrase={this.props.public.phrase} />
-                <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <div className={style.Board__mainArea}>
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
+                </div>
+                <div className={style.Board__commandArea}>
+                    <ChoseCommand phrase={this.props.public.phrase} />
+                </div>
+                <div className={style.Board__ownCards}>
+                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
+                </div>
             </div>
         )
     }
@@ -137,9 +159,17 @@ class StageVoteStory extends React.Component<StageProps>
         return (
             <div className={classNames(style.Board__board, style.Board__votestory)}>
                 <OpponentList opponents={others} />
-                <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />
-                <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID)} handler={this.cardSelected} />
-                <Cards cards={this.props.myhand} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <div className={style.Board__mainArea}>
+                    <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID)} handler={this.cardSelected} />
+                </div>
+                <div className={style.Board__commandArea}>
+                    <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />
+                </div>
+                <div className={style.Board__ownCards}>
+                    <Cards cards={this.props.myhand} />
+                </div>
+
             </div>
         )
     }
@@ -156,9 +186,17 @@ class StageFinish extends React.Component<StageProps>
         return (
             <div className={classNames(style.Board__board, style.Board__finish)}>
                 <OpponentList opponents={others} />
-                <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.playerInfos} />
-                {this.props.onEndButtonClicked && <Button onClick={this.props.onEndButtonClicked}>End Round</Button>}
-                <Cards cards={this.props.myhand} />
+
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <div className={style.Board__mainArea}>
+                    <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.playerInfos} />
+                </div>
+                <div className={style.Board__commandArea}>
+                    {this.props.onEndButtonClicked && <Button onClick={this.props.onEndButtonClicked}>End Round</Button>}
+                </div>
+                <div className={style.Board__ownCards}>
+                    <Cards cards={this.props.myhand} />
+                </div>
             </div>
         )
     }
@@ -187,7 +225,7 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
         let fullPlayerInfo: FullPlayerInfo = [];
         fullPlayerInfo = playerNames.map((lobbyPlayer) => {
             let gamePlayer = this.props.G.playerInfo[lobbyPlayer.playerID];
-            return { playerID: lobbyPlayer.playerID, nickname: lobbyPlayer.nickname, cardCount: gamePlayer.cardCount, points: 0 }
+            return { playerID: lobbyPlayer.playerID, nickname: lobbyPlayer.nickname, cardCount: gamePlayer.cardCount, score: gamePlayer.score }
         });
 
         const playerID = this.props.playerID;
@@ -243,9 +281,9 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any>
                 );
             case 'Finish':
                 let endTurnCallback;
-                if(playerID === this.props.ctx.currentPlayer){
+                if (playerID === this.props.ctx.currentPlayer) {
                     endTurnCallback = () => {
-                        if(this.props.moves.EndTurn)
+                        if (this.props.moves.EndTurn)
                             this.props.moves.EndTurn()
                     }
                 }

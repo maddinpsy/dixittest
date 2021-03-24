@@ -28,8 +28,7 @@ export function ChoseCommand(props: { phrase: string }) {
 export function VoteCommand(props: { player: string, phrase: string }) {
     return (
         <div className={style.Command__command}>
-            <div>{props.player} chose the pharse: {props.phrase}</div>
-            <div>Select the card he played:</div>
+            <div>Guess the card {props.player} chose for the pharse: {props.phrase}</div>
         </div>
     )
 }
