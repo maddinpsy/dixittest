@@ -24,6 +24,7 @@ export function Cards(props: { cards: number[] }) {
 export interface AnimationSetting {
     destClientX: number;
     destClientY: number;
+    destHeight: number;
     duration: number;
 }
 
@@ -52,7 +53,7 @@ export class CardsToChoose extends React.Component<CardsToChooseProps, { selecte
                 //Add new image
                 let n = document.createElement('img');
                 n.src = curRef.src;
-                n.className = style.Card__image ;
+                n.className = style.Card__image;
                 n.style.left = rect.left + "px";
                 n.style.top = rect.top + "px";
                 n.style.width = rect.width + "px";
@@ -60,20 +61,24 @@ export class CardsToChoose extends React.Component<CardsToChooseProps, { selecte
                 n.style.position = "fixed";
                 document.body.appendChild(n);
                 //start animation
-                n.style.transition = "300ms ease all"
+                n.style.transition = "ease-in all";
+                n.style.transitionDuration = this.props.animate.duration+"ms";
                 window.setTimeout(() => {
-                    n.style.left = this.props.animate?.destClientX + "px";
-                    n.style.top = this.props.animate?.destClientY + "px";
+                    if(this.props.animate){
+                        n.style.left = (this.props.animate.destClientX - rect.width / 2) + "px";
+                        n.style.top = (this.props.animate.destClientY - this.props.animate.destHeight / 2) + "px";
+                        n.style.height = (this.props.animate.destHeight) + "px";
+                    }
                 }, 10);
                 //after animation
                 window.setTimeout(() => {
                     n.remove();
                     this.props.handler(cardId)
                 }, this.props.animate.duration);
-            }else{
+            } else {
                 //could find image: call handler
-            this.props.handler(cardId);
-        }
+                this.props.handler(cardId);
+            }
         } else {
             //direct call
             this.props.handler(cardId);
@@ -123,7 +128,7 @@ export class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], 
         const list = this.props.playedCards.map((value, idx) => (
             <div key={idx} className={style.Card__container}>
                 <div>Played by: {this.mapToName(value.playedBy)}</div>
-                <img src={value.cardID?imageLoader()[value.cardID]:backside} alt={"CardID:" + value.cardID} className={style.Card__image} />
+                <img src={value.cardID ? imageLoader()[value.cardID] : backside} alt={"CardID:" + value.cardID} className={style.Card__image} />
                 {this.voters(value.votedBy)}
             </div>
         ))

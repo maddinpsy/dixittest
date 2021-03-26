@@ -8,7 +8,7 @@ import style from "./style.module.scss";
 
 import { OpponentList } from "./Opponent";
 import { CardPile } from "./CardPile";
-import { Cards, CardsFullInfo, CardsToChoose } from "./Cards";
+import { AnimationSetting, Cards, CardsFullInfo, CardsToChoose } from "./Cards";
 import { ChoseCommand, VoteCommand, WatingCommand, StoryTellingCommand } from "./Command";
 import { Button } from "components/Button";
 import { ScoreBoard } from "components/Board/ScoreBoard";
@@ -64,13 +64,14 @@ class StageWaiting extends React.Component<StageProps> {
 }
 
 
-class StageStorytelling extends React.Component<StageProps, { phrase: string }>
+class StageStorytelling extends React.Component<StageProps, { phrase: string,cardAnimationSettings?:AnimationSetting }>
 {
     constructor(props: any) {
         super(props);
         this.state = { phrase: '' };
         this.phraseChanged = this.phraseChanged.bind(this);
         this.cardSelected = this.cardSelected.bind(this);
+        this.cardPilePosition = this.cardPilePosition.bind(this);
     }
 
     phraseChanged(phrase: string) {
@@ -85,6 +86,15 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
         this.props.onChooseStory(this.state.phrase, src);
     }
 
+    cardPilePosition(p:{clientLeft:number,clientTop:number, height:number}){
+        this.setState({cardAnimationSettings:{
+            destClientX:p.clientLeft,
+            destClientY:p.clientTop,
+            destHeight:p.height,
+            duration:300
+        }})
+    }
+
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
@@ -92,13 +102,13 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
                 <OpponentList opponents={others} />
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} setPosition={this.cardPilePosition}/>
                 </div>
                 <div className={style.Board__commandArea}>
                     <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
                 </div>
                 <div className={style.Board__ownCards}>
-                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
+                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} animate={this.state.cardAnimationSettings}/>
                 </div>
             </div>
         )
@@ -106,11 +116,13 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
 }
 
 
-class StageAddOwnCard extends React.Component<StageProps>
+class StageAddOwnCard extends React.Component<StageProps,{cardAnimationSettings?:AnimationSetting}>
 {
     constructor(props: any) {
         super(props);
+        this.state={}
         this.cardSelected = this.cardSelected.bind(this);
+        this.cardPilePosition = this.cardPilePosition.bind(this);
     }
 
     cardSelected(cardID: number) {
@@ -120,6 +132,15 @@ class StageAddOwnCard extends React.Component<StageProps>
         this.props.onChooseCard(cardID);
     }
 
+    cardPilePosition(p:{clientLeft:number,clientTop:number, height:number}){
+        this.setState({cardAnimationSettings:{
+            destClientX:p.clientLeft,
+            destClientY:p.clientTop,
+            destHeight:p.height,
+            duration:300
+        }})
+    }
+
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
@@ -127,13 +148,13 @@ class StageAddOwnCard extends React.Component<StageProps>
                 <OpponentList opponents={others} />
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} setPosition={this.cardPilePosition} />
                 </div>
                 <div className={style.Board__commandArea}>
                     <ChoseCommand phrase={this.props.public.phrase} />
                 </div>
                 <div className={style.Board__ownCards}>
-                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} />
+                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} animate={this.state.cardAnimationSettings}/>
                 </div>
             </div>
         )
@@ -161,7 +182,7 @@ class StageVoteStory extends React.Component<StageProps>
                 <OpponentList opponents={others} />
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID||0)} handler={this.cardSelected} />
+                    <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID || 0)} handler={this.cardSelected} />
                 </div>
                 <div className={style.Board__commandArea}>
                     <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />
