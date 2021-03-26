@@ -44,10 +44,10 @@ export function setupGame(ctx: Ctx) {
     //shuffle deck
     G.secret.drawPile = ctx.random?.Shuffle(G.secret.drawPile) || [];
     //add number of players
-    for (let i = 0; i < ctx.numPlayers; i++) {
-        G.players[String(i)] = { hand: [] };
-        G.playerInfo[String(i)] = { cardCount: 0, score: 0 };
-    }
+    ctx.playOrder.forEach((playerID) => {
+        G.players[playerID] = { hand: [] };
+        G.playerInfo[playerID] = { cardCount: 0, score: 0 };
+    });
     return G;
 }
 
@@ -203,16 +203,16 @@ export function Scoring(G: DixitGameState, ctx: Ctx) {
         storyTellersCard.votedBy.forEach(p => {
             G.playerInfo[p].score += 3;
         })
-        //everyone, except story teller, receiving votes, gets one point per vote
-        G.playedCards
-            .filter(p => p.playedBy !== ctx.currentPlayer)
-            .forEach(p => {
-                if (!p.playedBy) {
-                    throw new Error("This is unpossible, scoring cannot be done without playedBy info.")
-                }
-                G.playerInfo[p.playedBy].score += p.votedBy.length
-            });
     }
+    //everyone, except story teller, receiving votes, gets one point per vote
+    G.playedCards
+    .filter(p => p.playedBy !== ctx.currentPlayer)
+    .forEach(p => {
+        if (!p.playedBy) {
+            throw new Error("This is unpossible, scoring cannot be done without playedBy info.")
+        }
+        G.playerInfo[p.playedBy].score += p.votedBy.length
+    });
 }
 
 export function GotoFinalState(G: DixitGameState, ctx: Ctx) {
