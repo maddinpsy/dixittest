@@ -161,7 +161,7 @@ class StageVoteStory extends React.Component<StageProps>
                 <OpponentList opponents={others} />
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID)} handler={this.cardSelected} />
+                    <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID||0)} handler={this.cardSelected} />
                 </div>
                 <div className={style.Board__commandArea}>
                     <VoteCommand player={this.props.storyTellerName} phrase={this.props.public.phrase} />

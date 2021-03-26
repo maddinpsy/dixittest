@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import backside from "img/backside.png"
 import { PlayedCard } from "Game";
 import imageLoader from 'images';
 import { FullPlayerInfo } from "components/Board"
@@ -122,7 +123,7 @@ export class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], 
         const list = this.props.playedCards.map((value, idx) => (
             <div key={idx} className={style.Card__container}>
                 <div>Played by: {this.mapToName(value.playedBy)}</div>
-                <img src={imageLoader()[value.cardID]} alt={"CardID:" + value.cardID} className={style.Card__image} />
+                <img src={value.cardID?imageLoader()[value.cardID]:backside} alt={"CardID:" + value.cardID} className={style.Card__image} />
                 {this.voters(value.votedBy)}
             </div>
         ))

@@ -3,7 +3,7 @@ import { Ctx, Game, PlayerID } from 'boardgame.io';
 import { INVALID_MOVE, PlayerView } from 'boardgame.io/core';
 
 export interface PlayedCard {
-    cardID: number,
+    cardID?: number,
     playedBy?: PlayerID,
     votedBy: PlayerID[]
 }
@@ -116,6 +116,10 @@ export function SelectStory(G: DixitGameState, ctx: Ctx, phrase: string, image: 
         playedBy: ctx.playerID,
         votedBy: []
     });
+    G.playedCards.push({
+        playedBy: ctx.playerID,
+        votedBy: []
+    });
 
     //remove from hand
     plystate.hand.splice(idx, 1);
@@ -148,7 +152,11 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: number) {
         playedBy: ctx.playerID,
         votedBy: []
     });
-
+    G.playedCards.push({
+        playedBy: ctx.playerID,
+        votedBy: []
+    });
+    
     //remove from hand
     plystate.hand.splice(idx, 1);
 
@@ -163,8 +171,7 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: number) {
         //shuffle and show cards                
         if (ctx.random?.Shuffle)
             G.secret.playedCards = ctx.random.Shuffle(G.secret.playedCards);
-        if (!G.playedCards)
-            G.playedCards = [];
+        G.playedCards = [];
         for (let i = 0; i < G.secret.playedCards.length; i++) {
             G.playedCards.push({ cardID: G.secret.playedCards[i].cardID, votedBy: [] });
         }
