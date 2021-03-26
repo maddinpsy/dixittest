@@ -156,7 +156,7 @@ export function SelectCard(G: DixitGameState, ctx: Ctx, image: number) {
         playedBy: ctx.playerID,
         votedBy: []
     });
-    
+
     //remove from hand
     plystate.hand.splice(idx, 1);
 
@@ -207,7 +207,7 @@ export function Scoring(G: DixitGameState, ctx: Ctx) {
         G.playedCards
             .filter(p => p.playedBy !== ctx.currentPlayer)
             .forEach(p => {
-                if(!p.playedBy){
+                if (!p.playedBy) {
                     throw new Error("This is unpossible, scoring cannot be done without playedBy info.")
                 }
                 G.playerInfo[p.playedBy].score += p.votedBy.length
@@ -246,6 +246,15 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: number) {
 
     //save voting
     G.secret.playedCards[idx].votedBy.push(ctx.playerID);
+
+
+    //publish knowledge to this palyer
+    G.players[ctx.playerID].playedCards = G.secret.playedCards;
+    //publish knowledge to all palyers waiting
+    ctx.playOrder.filter(pID => !ctx.activePlayers || !(pID in ctx.activePlayers))
+        .forEach((pID) => {
+            G.players[pID].playedCards = G.secret.playedCards;
+        });
 
     //if last, move to next state
     let allInWatingButMe: boolean = true;

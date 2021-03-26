@@ -31,13 +31,10 @@ interface StageProps {
 
 class StageWaiting extends React.Component<StageProps> {
     playedCards() {
-        const playerIDs = Object.keys(this.props.public.players);
-        if (playerIDs.length > 0 && playerIDs[0] !== "null") {
-            const playedCards = this.props.public.players[playerIDs[0]].playedCards;
-            if (playedCards !== undefined) {
-                //info about played cards is available
-                return (<CardsFullInfo playedCards={playedCards} playerInfo={this.props.playerInfos} />)
-            }
+        const playedCards = this.props.public.players[this.props.playerID]?.playedCards;
+        if (playedCards !== undefined) {
+            //info about played cards is available
+            return (<CardsFullInfo playedCards={playedCards} playerInfo={this.props.playerInfos} />)
         }
         //show backsides only
         return (<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />)
