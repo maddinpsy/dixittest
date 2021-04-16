@@ -30,21 +30,28 @@ interface StageProps {
 
 
 class StageWaiting extends React.Component<StageProps> {
+    dropLocation:React.RefObject<HTMLDivElement>;
+
+    constructor(props:any){
+        super(props);
+        this.dropLocation=React.createRef();
+    }
+
     playedCards() {
         const playedCards = this.props.public.players[this.props.playerID]?.playedCards;
         if (playedCards !== undefined) {
             //info about played cards is available
-            return (<CardsFullInfo playedCards={playedCards} playerInfo={this.props.playerInfos} />)
+            return (<CardsFullInfo playedCards={playedCards} playerInfo={this.props.playerInfos}  forwardedRef={this.dropLocation} />)
         }
         //show backsides only
-        return (<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} />)
+        return (<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocation}/>)
     }
 
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className={classNames(style.Board__board, style.Board__waiting)}>
-                <OpponentList opponents={others} />
+                <OpponentList opponents={others} animationDestination={this.dropLocation}/>
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
                     {this.playedCards()}
@@ -93,7 +100,7 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
                 <OpponentList opponents={others} />
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} containerRef={this.dropLocationRef} />
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocationRef} />
                 </div>
                 <div className={style.Board__commandArea}>
                     <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
@@ -129,10 +136,10 @@ class StageAddOwnCard extends React.Component<StageProps>
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className={classNames(style.Board__board, style.Board__addowncard)}>
-                <OpponentList opponents={others} />
+                <OpponentList opponents={others} animationDestination={this.dropLocationRef}/>
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} containerRef={this.dropLocationRef} />
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocationRef} />
                 </div>
                 <div className={style.Board__commandArea}>
                     <ChoseCommand phrase={this.props.public.phrase} />

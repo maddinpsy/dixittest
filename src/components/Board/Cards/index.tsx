@@ -63,12 +63,12 @@ export class CardsToChoose extends React.Component<CardsToChooseProps, { selecte
             }, 10);
             //after animation
             n.addEventListener("transitionend",()=>{
-                console.log("end")
                 n.remove();
                 this.props.handler(cardId)
             });
             n.addEventListener("transitioncancel",()=>{
-                console.log("cancels")
+                n.remove();
+                this.props.handler(cardId)
             });
         } else {
             //could find image or destination: call handler directly
@@ -95,7 +95,7 @@ export class CardsToChoose extends React.Component<CardsToChooseProps, { selecte
 }
 
 
-export class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], playerInfo: FullPlayerInfo }> {
+export class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], playerInfo: FullPlayerInfo , forwardedRef?: React.RefObject<HTMLDivElement>;}> {
     mapToName(playerID?: string): string {
         const name = this.props.playerInfo.find(p => p.playerID === playerID)?.nickname;
         if (name === undefined) {
@@ -124,7 +124,7 @@ export class CardsFullInfo extends React.Component<{ playedCards: PlayedCard[], 
             </div>
         ))
         return (
-            <div className={style.Card__list}>
+            <div ref={this.props.forwardedRef} className={style.Card__list}>
                 {list}
             </div>
         )
