@@ -35,5 +35,6 @@
     flex-grow: 1;
     flex-basis: auto;
     object-fit: scale-down;
+    transition: all 300ms ease-in;
   }
 }

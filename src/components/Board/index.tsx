@@ -8,7 +8,7 @@ import style from "./style.module.scss";
 
 import { OpponentList } from "./Opponent";
 import { CardPile } from "./CardPile";
-import { AnimationSetting, Cards, CardsFullInfo, CardsToChoose } from "./Cards";
+import { Cards, CardsFullInfo, CardsToChoose } from "./Cards";
 import { ChoseCommand, VoteCommand, WatingCommand, StoryTellingCommand } from "./Command";
 import { Button } from "components/Button";
 import { ScoreBoard } from "components/Board/ScoreBoard";
@@ -61,14 +61,16 @@ class StageWaiting extends React.Component<StageProps> {
 }
 
 
-class StageStorytelling extends React.Component<StageProps, { phrase: string,cardAnimationSettings?:AnimationSetting }>
+class StageStorytelling extends React.Component<StageProps, { phrase: string }>
 {
+    dropLocationRef: React.RefObject<HTMLDivElement>;
+
     constructor(props: any) {
         super(props);
         this.state = { phrase: '' };
+        this.dropLocationRef = React.createRef();
         this.phraseChanged = this.phraseChanged.bind(this);
         this.cardSelected = this.cardSelected.bind(this);
-        this.cardPilePosition = this.cardPilePosition.bind(this);
     }
 
     phraseChanged(phrase: string) {
@@ -83,14 +85,6 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string,car
         this.props.onChooseStory(this.state.phrase, src);
     }
 
-    cardPilePosition(p:{clientLeft:number,clientTop:number, height:number}){
-        this.setState({cardAnimationSettings:{
-            destClientX:p.clientLeft,
-            destClientY:p.clientTop,
-            destHeight:p.height,
-            duration:300
-        }})
-    }
 
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
@@ -99,13 +93,13 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string,car
                 <OpponentList opponents={others} />
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} setPosition={this.cardPilePosition}/>
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} containerRef={this.dropLocationRef} />
                 </div>
                 <div className={style.Board__commandArea}>
                     <StoryTellingCommand onChange={this.phraseChanged} phrase={this.state.phrase} />
                 </div>
                 <div className={style.Board__ownCards}>
-                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} animate={this.state.cardAnimationSettings}/>
+                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} animationDestination={this.dropLocationRef} />
                 </div>
             </div>
         )
@@ -113,13 +107,14 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string,car
 }
 
 
-class StageAddOwnCard extends React.Component<StageProps,{cardAnimationSettings?:AnimationSetting}>
+class StageAddOwnCard extends React.Component<StageProps>
 {
+    dropLocationRef: React.RefObject<HTMLDivElement>;
+
     constructor(props: any) {
         super(props);
-        this.state={}
+        this.dropLocationRef = React.createRef();
         this.cardSelected = this.cardSelected.bind(this);
-        this.cardPilePosition = this.cardPilePosition.bind(this);
     }
 
     cardSelected(cardID: number) {
@@ -129,14 +124,6 @@ class StageAddOwnCard extends React.Component<StageProps,{cardAnimationSettings?
         this.props.onChooseCard(cardID);
     }
 
-    cardPilePosition(p:{clientLeft:number,clientTop:number, height:number}){
-        this.setState({cardAnimationSettings:{
-            destClientX:p.clientLeft,
-            destClientY:p.clientTop,
-            destHeight:p.height,
-            duration:300
-        }})
-    }
 
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
@@ -145,13 +132,13 @@ class StageAddOwnCard extends React.Component<StageProps,{cardAnimationSettings?
                 <OpponentList opponents={others} />
                 <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
                 <div className={style.Board__mainArea}>
-                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} setPosition={this.cardPilePosition} />
+                    <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} containerRef={this.dropLocationRef} />
                 </div>
                 <div className={style.Board__commandArea}>
                     <ChoseCommand phrase={this.props.public.phrase} />
                 </div>
                 <div className={style.Board__ownCards}>
-                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} animate={this.state.cardAnimationSettings}/>
+                    <CardsToChoose cards={this.props.myhand} handler={this.cardSelected} animationDestination={this.dropLocationRef} />
                 </div>
             </div>
         )

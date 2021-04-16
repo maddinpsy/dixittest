@@ -21,17 +21,10 @@ export function Cards(props: { cards: number[] }) {
     )
 }
 
-export interface AnimationSetting {
-    destClientX: number;
-    destClientY: number;
-    destHeight: number;
-    duration: number;
-}
-
 export interface CardsToChooseProps {
     cards: number[],
     handler: (src: number) => void
-    animate?: AnimationSetting
+    animationDestination?: React.RefObject<HTMLDivElement>
 }
 
 export class CardsToChoose extends React.Component<CardsToChooseProps, { selectedCard?: number }>
@@ -43,44 +36,42 @@ export class CardsToChoose extends React.Component<CardsToChooseProps, { selecte
     }
 
     onSelectCard(cardId: number) {
-        if (this.props.animate) {
-            //get selected dom image
-            const curRef = this.imgRefs.find(o => o.cardID === cardId)?.ref.current;
-            if (curRef) {
-                //hide original image
-                curRef.style.opacity = "0";
-                const rect = curRef.getBoundingClientRect();
-                //Add new image
-                let n = document.createElement('img');
-                n.src = curRef.src;
-                n.className = style.Card__image;
-                n.style.left = rect.left + "px";
-                n.style.top = rect.top + "px";
-                n.style.width = rect.width + "px";
-                n.style.height = rect.height + "px";
-                n.style.position = "fixed";
-                document.body.appendChild(n);
-                //start animation
-                n.style.transition = "ease-in all";
-                n.style.transitionDuration = this.props.animate.duration+"ms";
-                window.setTimeout(() => {
-                    if(this.props.animate){
-                        n.style.left = (this.props.animate.destClientX - rect.width / 2) + "px";
-                        n.style.top = (this.props.animate.destClientY - this.props.animate.destHeight / 2) + "px";
-                        n.style.height = (this.props.animate.destHeight) + "px";
-                    }
-                }, 10);
-                //after animation
-                window.setTimeout(() => {
-                    n.remove();
-                    this.props.handler(cardId)
-                }, this.props.animate.duration);
-            } else {
-                //could find image: call handler
-                this.props.handler(cardId);
-            }
+        //get selected dom image
+        const curRef = this.imgRefs.find(o => o.cardID === cardId)?.ref.current;
+        if (this.props.animationDestination?.current && curRef) {
+            //hide original image
+            curRef.style.opacity = "0";
+            const ownRect = curRef.getBoundingClientRect();
+            //Add new image
+            let n = document.createElement('img');
+            n.src = curRef.src;
+            n.className = style.Card__image;
+            n.style.left = ownRect.left + "px";
+            n.style.top = ownRect.top + "px";
+            n.style.width = ownRect.width + "px";
+            n.style.height = ownRect.height + "px";
+            n.style.position = "fixed";
+            document.body.appendChild(n);
+            //start animation after 10ms
+            window.setTimeout(() => {
+                if (this.props.animationDestination?.current) {
+                    const destRect = this.props.animationDestination?.current.getBoundingClientRect();
+                    n.style.left = (destRect.left + destRect.width / 2 - ownRect.width / 2) + "px";
+                    n.style.top = (destRect.top) + "px";
+                    n.style.height = (destRect.height) + "px";
+                }
+            }, 10);
+            //after animation
+            n.addEventListener("transitionend",()=>{
+                console.log("end")
+                n.remove();
+                this.props.handler(cardId)
+            });
+            n.addEventListener("transitioncancel",()=>{
+                console.log("cancels")
+            });
         } else {
-            //direct call
+            //could find image or destination: call handler directly
             this.props.handler(cardId);
         }
     }
