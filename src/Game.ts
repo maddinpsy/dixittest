@@ -27,6 +27,7 @@ export interface DixitGameState {
     }
     phrase: string;
     playedCards: PlayedCard[]
+    ramainingCards:number
 }
 
 export function setupGame(ctx: Ctx) {
@@ -40,6 +41,8 @@ export function setupGame(ctx: Ctx) {
         players: {},
         playedCards: [],
         playerInfo: {},
+
+        ramainingCards: 59
     }
     //shuffle deck
     G.secret.drawPile = ctx.random?.Shuffle(G.secret.drawPile) || [];
@@ -59,6 +62,9 @@ function updatePublicKnowledge(G: DixitGameState, ctx: Ctx) {
 
     //everything to curret player
     G.players[ctx.currentPlayer].playedCards = G.secret.playedCards;
+
+    //number of cards to all
+    G.ramainingCards = G.secret.drawPile.length;
 }
 
 export function setupTurn(G: DixitGameState, ctx: Ctx) {

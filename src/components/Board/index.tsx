@@ -24,6 +24,7 @@ interface StageProps {
     playerID: string
     public: DixitGameState
     storyTellerName: string
+    remainingCards:number
     onChooseStory?: (phrase: string, cardID: number) => void
     onChooseCard?: (cardID: number) => void
     onEndButtonClicked?: () => void
@@ -53,7 +54,7 @@ class StageWaiting extends React.Component<StageProps> {
         return (
             <div className={classNames(style.Board__board, style.Board__waiting)}>
                 <OpponentList opponents={others} animationDestination={this.dropLocation}/>
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} remainingCards={this.props.remainingCards}/>
                 <div className={style.Board__mainArea}>
                     {this.playedCards()}
                 </div>
@@ -99,7 +100,7 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
         return (
             <div className={classNames(style.Board__board, style.Board__storytelling)}>
                 <OpponentList opponents={others} />
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
                 <div className={style.Board__mainArea}>
                     <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocationRef} />
                 </div>
@@ -138,7 +139,7 @@ class StageAddOwnCard extends React.Component<StageProps>
         return (
             <div className={classNames(style.Board__board, style.Board__addowncard)}>
                 <OpponentList opponents={others} animationDestination={this.dropLocationRef}/>
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
                 <div className={style.Board__mainArea}>
                     <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocationRef} />
                 </div>
@@ -172,7 +173,7 @@ class StageVoteStory extends React.Component<StageProps>
         return (
             <div className={classNames(style.Board__board, style.Board__votestory)}>
                 <OpponentList opponents={others} />
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
                 <div className={style.Board__mainArea}>
                     <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID || 0)} handler={this.cardSelected} />
                 </div>
@@ -200,7 +201,7 @@ class StageFinish extends React.Component<StageProps>
             <div className={classNames(style.Board__board, style.Board__finish)}>
                 <OpponentList opponents={others} />
 
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
                 <div className={style.Board__mainArea}>
                     <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.playerInfos} />
                 </div>
@@ -272,6 +273,7 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
                         playerID={playerID}
                         storyTellerName={storyteller}
                         public={this.props.G}
+                        remainingCards={this.props.G.ramainingCards}
                     />
                 );
             case 'Storytelling':
@@ -283,6 +285,7 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
                         storyTellerName={storyteller}
                         public={this.props.G}
                         onChooseStory={this.props.moves.SelectStory}
+                        remainingCards={this.props.G.ramainingCards}
                     />
                 );
             case 'AddOwnCard':
@@ -294,6 +297,7 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
                         storyTellerName={storyteller}
                         public={this.props.G}
                         onChooseCard={this.props.moves.SelectCard}
+                        remainingCards={this.props.G.ramainingCards}
                     />
                 );
             case 'VoteStory':
@@ -305,6 +309,7 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
                         storyTellerName={storyteller}
                         public={this.props.G}
                         onChooseCard={this.props.moves.VoteCard}
+                        remainingCards={this.props.G.ramainingCards}
                     />
                 );
             case 'Finish':
@@ -323,6 +328,7 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
                         storyTellerName={storyteller}
                         public={this.props.G}
                         onEndButtonClicked={endTurnCallback}
+                        remainingCards={this.props.G.ramainingCards}
                     />
                 );
         }
