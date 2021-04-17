@@ -37,4 +37,13 @@
     object-fit: scale-down;
     transition: all 300ms ease-in;
   }
+
+  &__fullscreenContainer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+  }
 }
