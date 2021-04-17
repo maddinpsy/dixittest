@@ -5,6 +5,7 @@ import { Trans } from "react-i18next";
 import { ButtonLang } from "components/ButtonLang";
 import { Button, ButtonProps } from "components/Button";
 import { LobbyPage, SmallLogo } from "components/LobbyPage";
+import { isProduction } from "config";
 
 interface Props {
   playerCount: number;
@@ -28,25 +29,24 @@ const CreateGameButton: React.FC<ButtonProps & Props> = ({
   );
 };
 
-interface CreateGameProps{
-  onCreateGameRoom : (playerCount:number)=>void
-  requestChangeNickname :() => void
-  nickname:string
-  roomID?:string
+interface CreateGameProps {
+  onCreateGameRoom: (playerCount: number) => void
+  requestChangeNickname: () => void
+  nickname: string
+  roomID?: string
 }
 
 export class CreateGame extends React.Component<CreateGameProps> {
 
-  constructor(props:CreateGameProps)
-  {
+  constructor(props: CreateGameProps) {
     super(props);
-    if(props.nickname.trim()===""){
+    if (props.nickname.trim() === "") {
       props.requestChangeNickname();
     }
   }
 
-  render(){
-  
+  render() {
+
     let nickname = this.props.nickname;
     let roomID = this.props.roomID;
 
@@ -61,7 +61,7 @@ export class CreateGame extends React.Component<CreateGameProps> {
           <Trans>Welcome {{ nickname }}!</Trans>
         </h3>
 
-        <Button onClick={(e)=>{this.props.requestChangeNickname()}}>
+        <Button onClick={(e) => { this.props.requestChangeNickname() }}>
           <Trans>Change Nickname</Trans>
         </Button>
 
@@ -69,11 +69,14 @@ export class CreateGame extends React.Component<CreateGameProps> {
           <Trans>How many players do you want to play with?</Trans>
         </h3>
         <div className="CreateGame__options">
-        <CreateGameButton
-            theme="orange"
-            playerCount={2}
-            onClick={this.props.onCreateGameRoom}
-          />
+          { //add tow player game in debug only
+            isProduction ? "" :
+              <CreateGameButton
+                theme="orange"
+                playerCount={2}
+                onClick={this.props.onCreateGameRoom}
+              />
+          }
           <CreateGameButton
             theme="orange"
             playerCount={4}
