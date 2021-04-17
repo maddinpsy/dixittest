@@ -264,6 +264,16 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
         if (!storyteller) {
             return (<div>Error, this.props.ctx.currentPlayer has no name defined</div>)
         }
+        //show end game
+        if(this.props.ctx.gameover===true){
+            return (
+            <div className={style.Board__gameEndContainer}>
+                End of Game
+                <ScoreBoard playerID={this.props.playerID} playerInfos={fullPlayerInfo} remainingCards={this.props.G.ramainingCards}/>
+            </div>
+            );
+        }
+        //show main phases
         switch (this.props.ctx.activePlayers[playerID]) {
             case undefined:
                 return (
