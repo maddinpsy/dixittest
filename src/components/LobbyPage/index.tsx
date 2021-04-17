@@ -10,6 +10,7 @@ export const LobbyPage: React.FC<HTMLAttributes<HTMLDivElement>> = ({
 }) => {
   return (
     <div className={classNames(style.lobbyPage, className)} {...props}>
+      <SmallLogo/>
       <GithubLink />
       {children}
     </div>

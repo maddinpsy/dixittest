@@ -12,6 +12,7 @@ import { Cards, CardsFullInfo, CardsToChoose } from "./Cards";
 import { ChoseCommand, VoteCommand, WatingCommand, StoryTellingCommand } from "./Command";
 import { Button } from "components/Button";
 import { ScoreBoard } from "components/Board/ScoreBoard";
+import { Loading } from "components/Loading";
 
 
 
@@ -214,16 +215,31 @@ class StageFinish extends React.Component<StageProps>
     }
 }
 
-export class DixitBoard extends React.Component<BoardProps<DixitGameState>, any> {
+export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loading:boolean}> {
+    constructor(props:any){
+        super(props);
+        this.state={loading:true}
+    }
+    componentDidMount() {
+        //avoid startup flicker, for one second
+        window.setTimeout(() => this.setState({ loading: false }), 1000);
+    }
     render() {
+        if (this.state.loading) {
+            //show loading compontne to avoid startup flicker
+            return (<Loading/>)
+        }
         if (!this.props.matchData) {
-            return (<div>"this.props.matchData is not defined."</div>);
+            console.log("this.props.matchData is not defined.");
+            return (<Loading/>)
         }
         if (!this.props.playerID) {
-            return (<div>"this.props.playerID is not defined."</div>);
+            console.log("this.props.playerID is not defined.");
+            return (<Loading/>)
         }
         if (!this.props.ctx.activePlayers) {
-            return (<div>Error, this.props.ctx.activePlayers not defined</div>)
+            console.log("Error, this.props.ctx.activePlayers not defined.");
+            return (<Loading/>)
         }
         //mapping from id to name comes from this.props.matchData  
         //G stores only player ids (as string), but no names
