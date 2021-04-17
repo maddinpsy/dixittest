@@ -8,7 +8,6 @@ import {
 
 import { LobbyClient } from 'boardgame.io/client';
 import { SocketIO } from "boardgame.io/multiplayer";
-import { Server } from "boardgame.io";
 import { Client } from "boardgame.io/react";
 
 import './App.css';

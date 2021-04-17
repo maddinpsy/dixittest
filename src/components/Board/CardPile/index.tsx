@@ -1,5 +1,4 @@
 import * as React from "react";
-import { runInThisContext } from "vm";
 
 import style from "./style.module.scss";
 
@@ -29,7 +28,7 @@ export class CardPile extends React.Component<CardPileProps>
             //if all containers are set
             const curRef = this.containerRef.current;
             if (this.props.animationDestination?.current && curRef) {
-                const removedCard = oldProps.cards.find(x => this.props.cards.indexOf(x) == -1) || oldProps.cards[0];
+                const removedCard = oldProps.cards.find(x => this.props.cards.indexOf(x) === -1) || oldProps.cards[0];
                 if (removedCard) {
                     //add new image to document (at same size and position)
                     const ownRect = curRef.getBoundingClientRect();

@@ -24,7 +24,7 @@ interface StageProps {
     playerID: string
     public: DixitGameState
     storyTellerName: string
-    remainingCards:number
+    remainingCards: number
     onChooseStory?: (phrase: string, cardID: number) => void
     onChooseCard?: (cardID: number) => void
     onEndButtonClicked?: () => void
@@ -32,29 +32,29 @@ interface StageProps {
 
 
 class StageWaiting extends React.Component<StageProps> {
-    dropLocation:React.RefObject<HTMLDivElement>;
+    dropLocation: React.RefObject<HTMLDivElement>;
 
-    constructor(props:any){
+    constructor(props: any) {
         super(props);
-        this.dropLocation=React.createRef();
+        this.dropLocation = React.createRef();
     }
 
     playedCards() {
         const playedCards = this.props.public.players[this.props.playerID]?.playedCards;
         if (playedCards !== undefined) {
             //info about played cards is available
-            return (<CardsFullInfo playedCards={playedCards} playerInfo={this.props.playerInfos}  forwardedRef={this.dropLocation} />)
+            return (<CardsFullInfo playedCards={playedCards} playerInfo={this.props.playerInfos} forwardedRef={this.dropLocation} />)
         }
         //show backsides only
-        return (<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocation}/>)
+        return (<CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocation} />)
     }
 
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className={classNames(style.Board__board, style.Board__waiting)}>
-                <OpponentList opponents={others} animationDestination={this.dropLocation}/>
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} remainingCards={this.props.remainingCards}/>
+                <OpponentList opponents={others} animationDestination={this.dropLocation} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} remainingCards={this.props.remainingCards} />
                 <div className={style.Board__mainArea}>
                     {this.playedCards()}
                 </div>
@@ -89,7 +89,7 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
     cardSelected(src: number) {
         //TODO show error if phrase is empty
         if (!this.props.onChooseStory) {
-            throw "this.props.onChooseStory Must be defined";
+            throw new Error("this.props.onChooseStory Must be defined");
         }
         this.props.onChooseStory(this.state.phrase, src);
     }
@@ -100,7 +100,7 @@ class StageStorytelling extends React.Component<StageProps, { phrase: string }>
         return (
             <div className={classNames(style.Board__board, style.Board__storytelling)}>
                 <OpponentList opponents={others} />
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} remainingCards={this.props.remainingCards} />
                 <div className={style.Board__mainArea}>
                     <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocationRef} />
                 </div>
@@ -128,7 +128,7 @@ class StageAddOwnCard extends React.Component<StageProps>
 
     cardSelected(cardID: number) {
         if (!this.props.onChooseCard) {
-            throw "this.props.onChooseCard Must be defined";
+            throw new Error("this.props.onChooseCard Must be defined");
         }
         this.props.onChooseCard(cardID);
     }
@@ -138,8 +138,8 @@ class StageAddOwnCard extends React.Component<StageProps>
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className={classNames(style.Board__board, style.Board__addowncard)}>
-                <OpponentList opponents={others} animationDestination={this.dropLocationRef}/>
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
+                <OpponentList opponents={others} animationDestination={this.dropLocationRef} />
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} remainingCards={this.props.remainingCards} />
                 <div className={style.Board__mainArea}>
                     <CardPile cards={Array(this.props.public.playedCards.length).fill(backside)} forwardedRef={this.dropLocationRef} />
                 </div>
@@ -163,7 +163,7 @@ class StageVoteStory extends React.Component<StageProps>
 
     cardSelected(cardID: number) {
         if (!this.props.onChooseCard) {
-            throw "this.props.onChooseCard Must be defined";
+            throw new Error("this.props.onChooseCard Must be defined");
         }
         this.props.onChooseCard(cardID);
     }
@@ -173,7 +173,7 @@ class StageVoteStory extends React.Component<StageProps>
         return (
             <div className={classNames(style.Board__board, style.Board__votestory)}>
                 <OpponentList opponents={others} />
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} remainingCards={this.props.remainingCards} />
                 <div className={style.Board__mainArea}>
                     <CardsToChoose cards={this.props.public.playedCards.map(x => x.cardID || 0)} handler={this.cardSelected} />
                 </div>
@@ -191,17 +191,13 @@ class StageVoteStory extends React.Component<StageProps>
 
 class StageFinish extends React.Component<StageProps>
 {
-    constructor(props: any) {
-        super(props);
-    }
-
     render() {
         const others = this.props.playerInfos.filter(x => x.playerID !== this.props.playerID);
         return (
             <div className={classNames(style.Board__board, style.Board__finish)}>
                 <OpponentList opponents={others} />
 
-                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos}  remainingCards={this.props.remainingCards}/>
+                <ScoreBoard playerID={this.props.playerID} playerInfos={this.props.playerInfos} remainingCards={this.props.remainingCards} />
                 <div className={style.Board__mainArea}>
                     <CardsFullInfo playedCards={this.props.public.playedCards} playerInfo={this.props.playerInfos} />
                 </div>
@@ -216,10 +212,10 @@ class StageFinish extends React.Component<StageProps>
     }
 }
 
-export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loading:boolean}> {
-    constructor(props:any){
+export class DixitBoard extends React.Component<BoardProps<DixitGameState>, { loading: boolean }> {
+    constructor(props: any) {
         super(props);
-        this.state={loading:true}
+        this.state = { loading: true }
     }
     componentDidMount() {
         //avoid startup flicker, for one second
@@ -228,19 +224,19 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
     render() {
         if (this.state.loading) {
             //show loading compontne to avoid startup flicker
-            return (<Loading/>)
+            return (<Loading />)
         }
         if (!this.props.matchData) {
             console.log("this.props.matchData is not defined.");
-            return (<Loading/>)
+            return (<Loading />)
         }
         if (!this.props.playerID) {
             console.log("this.props.playerID is not defined.");
-            return (<Loading/>)
+            return (<Loading />)
         }
         if (!this.props.ctx.activePlayers) {
             console.log("Error, this.props.ctx.activePlayers not defined.");
-            return (<Loading/>)
+            return (<Loading />)
         }
         //mapping from id to name comes from this.props.matchData  
         //G stores only player ids (as string), but no names
@@ -260,17 +256,17 @@ export class DixitBoard extends React.Component<BoardProps<DixitGameState>, {loa
         const playerID = this.props.playerID;
 
         const ownCards = this.props.G.players[playerID]?.hand || [];
-        const storyteller = playerNames.find((x) => x.playerID == this.props.ctx.currentPlayer)?.nickname;
+        const storyteller = playerNames.find((x) => x.playerID === this.props.ctx.currentPlayer)?.nickname;
         if (!storyteller) {
             return (<div>Error, this.props.ctx.currentPlayer has no name defined</div>)
         }
         //show end game
-        if(this.props.ctx.gameover===true){
+        if (this.props.ctx.gameover === true) {
             return (
-            <div className={style.Board__gameEndContainer}>
-                End of Game
-                <ScoreBoard playerID={this.props.playerID} playerInfos={fullPlayerInfo} remainingCards={this.props.G.ramainingCards}/>
-            </div>
+                <div className={style.Board__gameEndContainer}>
+                    End of Game
+                    <ScoreBoard playerID={this.props.playerID} playerInfos={fullPlayerInfo} remainingCards={this.props.G.ramainingCards} />
+                </div>
             );
         }
         //show main phases

@@ -27,7 +27,7 @@ export interface DixitGameState {
     }
     phrase: string;
     playedCards: PlayedCard[]
-    ramainingCards:number
+    ramainingCards: number
 }
 
 export function setupGame(ctx: Ctx) {
@@ -80,7 +80,7 @@ export function setupTurn(G: DixitGameState, ctx: Ctx) {
         while (G.players[playerID].hand.length < 6) {
             //get card
             let card = G.secret.drawPile.pop();
-
+            
             //was last, end the game
             if (!card) {
                 if (ctx.events?.endGame) ctx.events.endGame();
@@ -92,10 +92,6 @@ export function setupTurn(G: DixitGameState, ctx: Ctx) {
         }
     }
     updatePublicKnowledge(G, ctx);
-}
-
-export function endPhase(G: DixitGameState, ctx: Ctx) {
-    return false;
 }
 
 //all moves
@@ -212,13 +208,13 @@ export function Scoring(G: DixitGameState, ctx: Ctx) {
     }
     //everyone, except story teller, receiving votes, gets one point per vote
     G.playedCards
-    .filter(p => p.playedBy !== ctx.currentPlayer)
-    .forEach(p => {
-        if (!p.playedBy) {
-            throw new Error("This is unpossible, scoring cannot be done without playedBy info.")
-        }
-        G.playerInfo[p.playedBy].score += p.votedBy.length
-    });
+        .filter(p => p.playedBy !== ctx.currentPlayer)
+        .forEach(p => {
+            if (!p.playedBy) {
+                throw new Error("This is unpossible, scoring cannot be done without playedBy info.")
+            }
+            G.playerInfo[p.playedBy].score += p.votedBy.length
+        });
 }
 
 export function GotoFinalState(G: DixitGameState, ctx: Ctx) {
@@ -288,38 +284,31 @@ export const Dixit: Game<DixitGameState, Ctx> = {
     maxPlayers: 6,
     playerView: PlayerView.STRIP_SECRETS,
     setup: setupGame,
-    phases: {
-        Main: {
-            start: true,
-            turn: {
-                //start with story telling
-                activePlayers:
-                {
-                    currentPlayer: { stage: 'Storytelling', moveLimit: 1 },
-                },
-                onBegin: setupTurn,
-                onMove: updatePublicKnowledge,
-                stages: {
-                    Storytelling:
-                    {
-                        moves: { SelectStory: { move: SelectStory, client: false } },
-                    },
-                    AddOwnCard:
-                    {
-                        moves: { SelectCard: { move: SelectCard, client: false } },
-                    },
-                    VoteStory:
-                    {
-                        moves: { VoteCard: { move: VoteCard, client: false } },
-                    },
-                    Finish:
-                    {
-                        moves: { EndTurn: { move: EndTurn, client: false } },
-                    }
-                }
+    turn: {
+        //start with story telling
+        activePlayers:
+        {
+            currentPlayer: { stage: 'Storytelling', moveLimit: 1 },
+        },
+        onBegin: setupTurn,
+        onMove: updatePublicKnowledge,
+        stages: {
+            Storytelling:
+            {
+                moves: { SelectStory: { move: SelectStory, client: false } },
             },
-            // Ends the phase if this returns true.
-            endIf: endPhase,
+            AddOwnCard:
+            {
+                moves: { SelectCard: { move: SelectCard, client: false } },
+            },
+            VoteStory:
+            {
+                moves: { VoteCard: { move: VoteCard, client: false } },
+            },
+            Finish:
+            {
+                moves: { EndTurn: { move: EndTurn, client: false } },
+            }
         }
     },
 };
