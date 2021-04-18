@@ -6,8 +6,6 @@ import imageLoader from 'images';
 import { FullPlayerInfo } from "components/Board"
 import { Button } from "components/Button"
 import style from "./style.module.scss";
-import classNames from "classnames";
-import { render } from "react-dom";
 
 
 export class Cards extends React.Component<{ cards: number[] }, { fullScreenCard?: number }>{

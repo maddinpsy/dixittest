@@ -51,6 +51,8 @@ export function setupGame(ctx: Ctx) {
         G.players[playerID] = { hand: [] };
         G.playerInfo[playerID] = { cardCount: 0, score: 0 };
     });
+    setupTurn(G,ctx);
+
     return G;
 }
 
@@ -80,7 +82,7 @@ export function setupTurn(G: DixitGameState, ctx: Ctx) {
         while (G.players[playerID].hand.length < 6) {
             //get card
             let card = G.secret.drawPile.pop();
-            
+
             //was last, end the game
             if (!card) {
                 if (ctx.events?.endGame) ctx.events.endGame();
@@ -273,6 +275,7 @@ export function VoteCard(G: DixitGameState, ctx: Ctx, image: number) {
 export function EndTurn(G: DixitGameState, ctx: Ctx) {
     if (ctx.playerID !== ctx.currentPlayer)
         return INVALID_MOVE;
+    setupTurn(G,ctx);
     if (ctx.events?.endTurn)
         ctx.events.endTurn();
 }
@@ -290,7 +293,6 @@ export const Dixit: Game<DixitGameState, Ctx> = {
         {
             currentPlayer: { stage: 'Storytelling', moveLimit: 1 },
         },
-        onBegin: setupTurn,
         onMove: updatePublicKnowledge,
         stages: {
             Storytelling:
